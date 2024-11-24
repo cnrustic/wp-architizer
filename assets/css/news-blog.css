@@ -1,0 +1,321 @@
+/* 文章基础样式 */
+.post {
+    margin-bottom: 40px;
+}
+
+.post-subtitle {
+    font-size: 1.2em;
+    color: #666;
+    margin: -10px 0 20px;
+}
+
+.reading-time {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 4px;
+}
+
+/* 特色文章样式 */
+.featured-posts {
+    margin: 40px 0;
+}
+
+.featured-posts.grid {
+    display: grid;
+    gap: 30px;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.featured-post {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.featured-post:hover {
+    transform: translateY(-5px);
+}
+
+.featured-post.large {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.post-thumbnail {
+    position: relative;
+    padding-top: 56.25%;
+}
+
+.post-thumbnail img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-content {
+    padding: 20px;
+}
+
+.post-title {
+    margin: 0 0 10px;
+    font-size: 1.4em;
+}
+
+.post-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.post-meta {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.post-meta > span {
+    margin-right: 15px;
+}
+
+.post-categories a {
+    color: #666;
+    text-decoration: none;
+}
+
+.post-excerpt {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.read-more {
+    display: inline-block;
+    padding: 8px 15px;
+    background: #333;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.read-more:hover {
+    background: #000;
+}
+
+/* 时间线样式 */
+.posts-timeline {
+    position: relative;
+    padding-left: 50px;
+}
+
+.timeline-year {
+    margin-bottom: 40px;
+}
+
+.year-label {
+    margin: 0 0 20px -50px;
+    padding: 10px 20px;
+    background: #333;
+    color: #fff;
+    display: inline-block;
+    border-radius: 4px;
+}
+
+.timeline-post {
+    position: relative;
+    margin-bottom: 30px;
+    padding-left: 30px;
+}
+
+.timeline-post:before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #eee;
+}
+
+.timeline-post:after {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #333;
+}
+
+.post-date {
+    position: absolute;
+    left: -80px;
+    top: 0;
+    text-align: center;
+}
+
+.post-date .month {
+    display: block;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.post-date .day {
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+/* 分类展示样式 */
+.category-showcase {
+    margin: 40px 0;
+}
+
+.category-section {
+    margin-bottom: 40px;
+}
+
+.category-title {
+    margin: 0 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+.category-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.category-posts {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.category-post {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.view-all {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 8px 15px;
+    background: #f5f5f5;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.view-all:hover {
+    background: #e0e0e0;
+}
+
+/* 社交分享样式 */
+.social-sharing {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.social-sharing h4 {
+    margin: 0 0 15px;
+}
+
+.share-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 15px;
+    margin-right: 10px;
+    background: #f5f5f5;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.share-button i {
+    margin-right: 8px;
+}
+
+.share-button.weixin:hover {
+    background: #7bb32e;
+    color: #fff;
+}
+
+.share-button.weibo:hover {
+    background: #e6162d;
+    color: #fff;
+}
+
+.share-button.qzone:hover {
+    background: #fece00;
+    color: #fff;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .featured-posts.grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .category-posts {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .featured-posts.grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .featured-post.large {
+        grid-column: auto;
+        grid-row: auto;
+    }
+    
+    .posts-timeline {
+        padding-left: 30px;
+    }
+    
+    .year-label {
+        margin-left: -30px;
+    }
+    
+    .post-date {
+        left: -60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-posts {
+        grid-template-columns: 1fr;
+    }
+    
+    .posts-timeline {
+        padding-left: 20px;
+    }
+    
+    .post-date {
+        position: static;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+    
+    .post-date .month,
+    .post-date .day {
+        display: inline;
+    }
+} 
