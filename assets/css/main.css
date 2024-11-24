@@ -1123,3 +1123,8 @@ html {
         scroll-behavior: auto !important;
     }
 }
+
+/* 使用系统字体 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
