@@ -6,7 +6,10 @@
  *
  * @package architizer
  */
-
+if (!defined('THEME_VERSION')) {
+    $theme = wp_get_theme();
+    define('THEME_VERSION', $theme->get('Version'));
+}
 if ( ! defined( '_S_VERSION' ) ) {
 	// Replace the version number of the theme on each release.
 	define( '_S_VERSION', '1.0.0' );
@@ -138,14 +141,56 @@ add_action( 'widgets_init', 'architizer_widgets_init' );
  * Enqueue scripts and styles.
  */
 function architizer_scripts() {
-	wp_enqueue_style( 'architizer-style', get_stylesheet_uri(), array(), _S_VERSION );
-	wp_style_add_data( 'architizer-style', 'rtl', 'replace' );
+    // 开发模式判断
+    $is_development = defined('WP_DEBUG') && WP_DEBUG;
+    
+    if ($is_development) {
+        // 开发模式：加载独立文件
+        wp_enqueue_style(
+            'wp-architizer-style',
+            get_stylesheet_uri(),
+            array(),
+            THEME_VERSION
+        );
 
-	wp_enqueue_script( 'architizer-navigation', get_template_directory_uri() . '/js/navigation.js', array(), _S_VERSION, true );
+        wp_enqueue_style(
+            'wp-architizer-main',
+            get_template_directory_uri() . '/assets/css/main.css',
+            array('wp-architizer-style'),
+            THEME_VERSION
+        );
+    } else {
+        // 生产模式：加载合并文件
+        wp_enqueue_style(
+            'wp-architizer-combined',
+            get_template_directory_uri() . '/assets/dist/combined.min.css',
+            array(),
+            THEME_VERSION
+        );
+    }
 
-	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
-		wp_enqueue_script( 'comment-reply' );
-	}
+    // JS文件处理
+    if ($is_development) {
+        wp_enqueue_script(
+            'wp-architizer-navigation',
+            get_template_directory_uri() . '/js/navigation.js',
+            array(),
+            THEME_VERSION,
+            true
+        );
+    } else {
+        wp_enqueue_script(
+            'wp-architizer-combined',
+            get_template_directory_uri() . '/assets/dist/combined.min.js',
+            array(),
+            THEME_VERSION,
+            true
+        );
+    }
+
+    if (is_singular() && comments_open() && get_option('thread_comments')) {
+        wp_enqueue_script('comment-reply');
+    }
 }
 add_action( 'wp_enqueue_scripts', 'architizer_scripts' );
 
@@ -368,7 +413,7 @@ function wp_architizer_modify_taxonomy_query($query) {
             }
         }
         
-        // 排序处理
+        // 排序处
         if (!empty($_GET['orderby'])) {
             switch ($_GET['orderby']) {
                 case 'title':
@@ -829,4 +874,104 @@ class WP_Architizer_Performance {
 
 // 初始化性能优化
 new WP_Architizer_Performance();
+
+function wp_architizer_combine_css() {
+    // 创建缓存目录
+    $cache_dir = get_template_directory() . '/assets/cache';
+    if (!file_exists($cache_dir)) {
+        wp_mkdir_p($cache_dir);
+    }
+
+    // CSS文件列表
+    $css_files = array(
+        get_template_directory() . '/style.css'
+        // 如果有其他CSS文件,在这里添加
+    );
+
+    // 合并文件路径
+    $combined_file = $cache_dir . '/combined.min.css';
+    
+    // 如果合并文件不存在,则创建
+    if (!file_exists($combined_file)) {
+        $combined_css = '';
+        foreach ($css_files as $file) {
+            if (file_exists($file)) {
+                $combined_css .= file_get_contents($file) . "\n";
+            }
+        }
+        file_put_contents($combined_file, $combined_css);
+    }
+}
+
+// 在主题初始化时合并CSS
+add_action('after_setup_theme', 'wp_architizer_combine_css');
+
+/**
+ * 资源文件合并和压缩
+ */
+function wp_architizer_build_assets() {
+    // 只在生产模式下执行
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        return;
+    }
+
+    // 创建dist目录
+    $dist_dir = get_template_directory() . '/assets/dist';
+    if (!file_exists($dist_dir)) {
+        wp_mkdir_p($dist_dir);
+    }
+
+    // CSS文件列表
+    $css_files = array(
+        get_template_directory() . '/style.css',
+        get_template_directory() . '/assets/css/main.css',
+        // 添加其他CSS文件
+    );
+
+    // JS文件列表
+    $js_files = array(
+        get_template_directory() . '/js/navigation.js',
+        // 添加其他JS文件
+    );
+
+    // 合并和压缩CSS
+    $combined_css = '';
+    foreach ($css_files as $file) {
+        if (file_exists($file)) {
+            $css = file_get_contents($file);
+            // 简单的CSS压缩
+            $css = preg_replace('/\s+/', ' ', $css);
+            $css = preg_replace('/\/\*[^*]*\*+([^\/][^*]*\*+)*\//', '', $css);
+            $css = str_replace(array(': ', ' {', '{ ', ', ', '} ', ';}'), array(':','{','{',',','}',';}'), $css);
+            $combined_css .= $css . "\n";
+        }
+    }
+    file_put_contents($dist_dir . '/combined.min.css', $combined_css);
+
+    // 合并和压缩JS
+    $combined_js = '';
+    foreach ($js_files as $file) {
+        if (file_exists($file)) {
+            $js = file_get_contents($file);
+            // 这里可以添加JS压缩逻辑
+            $combined_js .= $js . ";\n";
+        }
+    }
+    file_put_contents($dist_dir . '/combined.min.js', $combined_js);
+}
+
+// 在主题初始化时合并资源文件
+add_action('after_setup_theme', 'wp_architizer_build_assets');
+
+// 在主题更新或激活时构建资源
+add_action('after_switch_theme', 'wp_architizer_build_assets');
+add_action('customize_save_after', 'wp_architizer_build_assets');
+
+// 添加手动构建命令（可以在管理后台添加一个按钮）
+function wp_architizer_rebuild_assets() {
+    if (current_user_can('manage_options')) {
+        wp_architizer_build_assets();
+    }
+}
+add_action('admin_post_rebuild_assets', 'wp_architizer_rebuild_assets');
 
