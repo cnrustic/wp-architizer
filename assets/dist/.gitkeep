@@ -1,0 +1,3 @@
+# 忽略生产环境的合并文件
+assets/dist/*
+!assets/dist/.gitkeep
