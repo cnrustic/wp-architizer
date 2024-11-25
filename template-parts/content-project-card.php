@@ -5,22 +5,32 @@
 ?>
 
 <article class="project-card">
-    <div class="project-image">
-        <?php if (has_post_thumbnail()) : ?>
-            <?php the_post_thumbnail('large'); ?>
-        <?php endif; ?>
+    <div class="project-thumbnail">
+        <a href="<?php the_permalink(); ?>">
+            <?php if (has_post_thumbnail()) : ?>
+                <?php the_post_thumbnail('large'); ?>
+            <?php endif; ?>
+        </a>
     </div>
     <div class="project-info">
-        <h3><?php the_title(); ?></h3>
-        <?php 
-        $firm_id = get_field('project_firm');
-        if ($firm_id) : ?>
-            <p class="project-firm"><?php echo get_the_title($firm_id); ?></p>
-        <?php endif; ?>
-        <?php 
-        $location = get_field('project_location');
-        if ($location) : ?>
-            <p class="project-location"><?php echo esc_html($location['address']); ?></p>
-        <?php endif; ?>
+        <h3 class="project-title">
+            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+        </h3>
+        <div class="project-meta">
+            <?php
+            $location = get_the_terms(get_the_ID(), 'project_location');
+            if ($location) {
+                echo '<span class="location">' . $location[0]->name . '</span>';
+            }
+            ?>
+            <span class="firm">
+                <?php
+                $firm_id = get_post_meta(get_the_ID(), 'project_firm', true);
+                if ($firm_id) {
+                    echo '<a href="' . get_permalink($firm_id) . '">' . get_the_title($firm_id) . '</a>';
+                }
+                ?>
+            </span>
+        </div>
     </div>
 </article> 
