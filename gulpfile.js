@@ -1,16 +1,15 @@
 const gulp = require('gulp');
 const sass = require('gulp-sass')(require('sass'));
-const autoprefixer = require('gulp-autoprefixer');
 const cleanCSS = require('gulp-clean-css');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
-const imagemin = require('gulp-imagemin');
-const webp = require('gulp-webp');
 const critical = require('critical').stream;
 
 // CSS任务
-gulp.task('styles', () => {
-    return gulp.src('assets/scss/**/*.scss')  // 修改为正确的 SCSS 源文件路径
+gulp.task('styles', async () => {
+    const autoprefixer = (await import('gulp-autoprefixer')).default;
+    
+    return gulp.src('assets/scss/**/*.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer())
         .pipe(cleanCSS())
@@ -21,12 +20,13 @@ gulp.task('styles', () => {
 // JavaScript任务
 gulp.task('scripts', () => {
     return gulp.src([
-        'assets/js/src/header.js',       // 添加 header.js
+        'assets/js/src/header.js',
         'assets/js/src/utils.js',
         'assets/js/src/performance-monitor.js',
         'assets/js/src/interactions.js',
         'assets/js/src/image-preview.js',
-        'assets/js/src/social-share.js'
+        'assets/js/src/social-share.js',
+        'assets/js/src/home.js'
     ])
     .pipe(concat('combined.min.js'))
     .pipe(uglify())
@@ -34,8 +34,11 @@ gulp.task('scripts', () => {
 });
 
 // 图片优化任务
-gulp.task('images', () => {
-    return gulp.src('assets/images/**/*')  // 修改为正确的图片源文件路径
+gulp.task('images', async () => {
+    const imagemin = (await import('gulp-imagemin')).default;
+    const webp = (await import('gulp-webp')).default;
+    
+    return gulp.src('assets/images/**/*')
         .pipe(imagemin([
             imagemin.mozjpeg({quality: 75, progressive: true}),
             imagemin.optipng({optimizationLevel: 5}),
@@ -46,9 +49,9 @@ gulp.task('images', () => {
                 ]
             })
         ]))
-        .pipe(gulp.dest('assets/images/optimized'))  // 输出到优化后的目录
+        .pipe(gulp.dest('assets/images/optimized'))
         .pipe(webp())
-        .pipe(gulp.dest('assets/images/optimized/webp'));  // WebP 格式输出到单独目录
+        .pipe(gulp.dest('assets/images/optimized/webp'));
 });
 
 // 生成关键CSS
@@ -69,7 +72,7 @@ gulp.task('critical', () => {
                 }
             ],
             ignore: {
-                atrule: ['@font-face']  // 忽略字体文件
+                atrule: ['@font-face']
             }
         }))
         .pipe(gulp.dest('dist'));
@@ -83,7 +86,7 @@ gulp.task('watch', () => {
 });
 
 // 默认任务
-gulp.task('default', gulp.parallel('watch'));  // 修改为 parallel 并只运行 watch
+gulp.task('default', gulp.parallel('watch'));
 
 // 构建任务
 gulp.task('build', gulp.series('styles', 'scripts', 'images', 'critical'));
