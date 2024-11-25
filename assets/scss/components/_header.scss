@@ -1,153 +1,240 @@
+// 变量定义
+$header-height: 70px;
+$category-nav-height: 50px;
+$max-width: 1440px;
+$primary-color: #0066cc;
+$border-color: #eee;
+$text-color: #333;
+$light-bg: #f8f8f8;
+
+// Header 基础样式
 .site-header {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
+    width: 100%;
     background: #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     z-index: 1000;
-    
-    .header-container {
+}
+
+// Header 顶部部分
+.header-top {
+    height: $header-height;
+    border-bottom: 1px solid $border-color;
+
+    .container {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        max-width: 1200px;
+        height: 100%;
+        padding: 0 20px;
+        max-width: $max-width;
         margin: 0 auto;
-        padding: 1rem 2rem;
     }
-    
-    .site-branding {
-        .custom-logo {
-            height: 40px;
-            width: auto;
-        }
-        
-        .site-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #000;
-            text-decoration: none;
-        }
+}
+
+// Logo 样式
+.site-logo {
+    display: flex;
+    align-items: center;
+
+    img {
+        max-height: 40px;
+        width: auto;
     }
-    
-    .main-navigation {
-        .primary-menu {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            
-            a {
-                color: #333;
-                text-decoration: none;
-                font-weight: 500;
-                transition: color 0.3s ease;
-                
-                &:hover {
-                    color: #000;
-                }
-            }
-        }
+}
+
+// 主导航菜单
+.main-navigation {
+    height: 100%;
+}
+
+.primary-menu {
+    display: flex;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+        position: relative;
+        height: 100%;
     }
-    
-    .user-actions {
+
+    a {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        
-        .search-toggle {
-            background: none;
-            border: none;
-            padding: 0.5rem;
-            cursor: pointer;
-            
-            svg {
-                fill: #333;
-            }
-            
-            &:hover svg {
-                fill: #000;
-            }
-        }
-        
-        .login-link,
-        .register-link,
-        .logout-link {
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .login-link {
-            color: #333;
-            
-            &:hover {
-                color: #000;
-            }
-        }
-        
-        .register-link {
-            background: #000;
-            color: #fff;
-            
-            &:hover {
-                background: #333;
-            }
+        height: 100%;
+        padding: 0 20px;
+        color: $text-color;
+        text-decoration: none;
+        font-size: 15px;
+        transition: color 0.3s;
+
+        &:hover {
+            color: $primary-color;
         }
     }
 }
 
-.header-search {
+// 右侧功能区
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+// 搜索框
+.search-box {
+    position: relative;
+
+    .search-toggle {
+        background: none;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    .search-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 300px;
+        padding: 15px;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.3s, transform 0.3s;
+
+        &.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+// 用户菜单
+.user-menu {
+    position: relative;
+
+    .user-toggle {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+
+        img {
+            border-radius: 50%;
+        }
+    }
+
+    .user-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 200px;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 4px;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.3s, transform 0.3s;
+
+        &.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+// 登录注册按钮
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+
+    &-login {
+        color: $text-color;
+        border: 1px solid $border-color;
+    }
+
+    &-register {
+        background: $primary-color;
+        color: #fff;
+    }
+}
+
+// Header 底部分类导航
+.header-bottom {
+    height: $category-nav-height;
+    background: $light-bg;
+}
+
+.category-menu {
+    display: flex;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    a {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 0 15px;
+        color: #666;
+        text-decoration: none;
+        font-size: 14px;
+
+        &:hover {
+            color: $primary-color;
+        }
+    }
+}
+
+// 搜索遮罩层
+.search-overlay {
     display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: #fff;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    z-index: 1000;
-    
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s;
+
     &.active {
         display: block;
+        opacity: 1;
     }
-    
-    .search-container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 0 2rem;
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+    .header-top {
+        height: 60px;
     }
-    
-    .search-form {
-        display: flex;
-        gap: 1rem;
-        
-        .search-field {
-            width: 100%;
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            
-            &:focus {
-                outline: none;
-                border-color: #000;
-            }
-        }
-        
-        .search-submit {
-            padding: 0.75rem 1.5rem;
-            background: #000;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            
-            &:hover {
-                background: #333;
-            }
-        }
+
+    .main-navigation {
+        display: none; // 在移动端隐藏主导航
+    }
+
+    .header-bottom {
+        display: none; // 在移动端隐藏分类导航
     }
 } 
