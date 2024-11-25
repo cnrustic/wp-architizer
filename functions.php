@@ -69,6 +69,14 @@ function architizer_setup() {
 }
 add_action('after_setup_theme', 'architizer_setup');
 
+// 注册导航菜单
+function architizer_register_menus() {
+    register_nav_menus(array(
+        'primary' => '主导航菜单',
+        'category' => '分类导航菜单'
+    ));
+}
+add_action('init', 'architizer_register_menus');
 /**
  * 设置内容宽度
  */
@@ -344,6 +352,36 @@ function wp_architizer_enqueue_social_share_scripts() {
 }
 add_action('wp_enqueue_scripts', 'wp_architizer_enqueue_social_share_scripts', 35);
 
+// 加载样式和脚本
+function architizer_enqueue_scripts() {
+    // 加载 Font Awesome
+    wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+    
+    // 加载自定义样式
+    wp_enqueue_style('architizer-header', get_template_directory_uri() . '/assets/css/header.css');
+    
+    // 加载自定义脚本
+    wp_enqueue_script('architizer-header', get_template_directory_uri() . '/assets/js/header.js', array(), '1.0', true);
+
+    // 注册并加载 home.js
+    wp_enqueue_script(
+        'architizer-home',
+        get_template_directory_uri() . '/assets/js/src/home.js',
+        array('jquery'),  // 依赖 jQuery
+        '1.0.0',         // 版本号
+        true             // 在页面底部加载
+    );
+
+    // 加载合并后的 JS 文件
+    wp_enqueue_script(
+        'architizer-scripts',
+        get_template_directory_uri() . '/assets/js/combined.min.js',
+        array('jquery'),
+        '1.0.0',
+        true
+    );
+}
+add_action('wp_enqueue_scripts', 'architizer_enqueue_scripts');
 /**
  * 修改搜索查询
  */
@@ -630,3 +668,63 @@ function wp_architizer_enqueue_scripts() {
 
 add_action('wp_enqueue_scripts', 'wp_architizer_enqueue_styles');
 add_action('wp_enqueue_scripts', 'wp_architizer_enqueue_scripts');
+
+// 添加特色项目和事务所支持
+function architizer_add_meta_boxes() {
+    add_meta_box(
+        'featured_project',
+        '特色项目',
+        'architizer_featured_project_callback',
+        'project',
+        'side'
+    );
+
+    add_meta_box(
+        'featured_firm',
+        '特色事务所',
+        'architizer_featured_firm_callback',
+        'firm',
+        'side'
+    );
+}
+add_action('add_meta_boxes', 'architizer_add_meta_boxes');
+
+// 特色项目回调
+function architizer_featured_project_callback($post) {
+    $featured = get_post_meta($post->ID, 'featured_project', true);
+    ?>
+    <label>
+        <input type="checkbox" name="featured_project" value="1" <?php checked($featured, '1'); ?>>
+        设为特色项目
+    </label>
+    <?php
+}
+
+// 特色事务所回调
+function architizer_featured_firm_callback($post) {
+    $featured = get_post_meta($post->ID, 'featured_firm', true);
+    ?>
+    <label>
+        <input type="checkbox" name="featured_firm" value="1" <?php checked($featured, '1'); ?>>
+        设为特色事务所
+    </label>
+    <?php
+}
+
+// 保存元数据
+function architizer_save_meta_boxes($post_id) {
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+
+    if (isset($_POST['featured_project'])) {
+        update_post_meta($post_id, 'featured_project', '1');
+    } else {
+        delete_post_meta($post_id, 'featured_project');
+    }
+
+    if (isset($_POST['featured_firm'])) {
+        update_post_meta($post_id, 'featured_firm', '1');
+    } else {
+        delete_post_meta($post_id, 'featured_firm');
+    }
+}
+add_action('save_post', 'architizer_save_meta_boxes');
