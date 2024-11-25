@@ -1,0 +1,42 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 4rem 0 2rem;
+    
+    &:after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: #000;
+        margin: 1rem auto;
+    }
+}
+
+.view-all {
+    text-align: center;
+    margin: 2rem 0 4rem;
+    
+    .button {
+        display: inline-block;
+        padding: 1rem 3rem;
+        background: #000;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        
+        &:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+    }
+} 
