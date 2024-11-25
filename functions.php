@@ -191,6 +191,9 @@ function architizer_scripts() {
     if (is_singular() && comments_open() && get_option('thread_comments')) {
         wp_enqueue_script('comment-reply');
     }
+
+    // 添加自定义样式
+    wp_enqueue_style('architizer-custom', get_template_directory_uri() . '/assets/css/custom.css', array(), '1.0.0');
 }
 add_action( 'wp_enqueue_scripts', 'architizer_scripts' );
 
@@ -974,4 +977,182 @@ function wp_architizer_rebuild_assets() {
     }
 }
 add_action('admin_post_rebuild_assets', 'wp_architizer_rebuild_assets');
+
+/**
+ * 添加特色项目支持
+ */
+function add_featured_meta_box() {
+    add_meta_box(
+        'featured_meta_box',
+        '特色项目',
+        'featured_meta_box_callback',
+        'project',
+        'side'
+    );
+}
+add_action('add_meta_boxes', 'add_featured_meta_box');
+
+function featured_meta_box_callback($post) {
+    $is_featured = get_post_meta($post->ID, '_is_featured', true);
+    ?>
+    <label>
+        <input type="checkbox" name="is_featured" value="yes" <?php checked($is_featured, 'yes'); ?>>
+        设为特色项目
+    </label>
+    <?php
+}
+
+function save_featured_meta($post_id) {
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    
+    $is_featured = isset($_POST['is_featured']) ? 'yes' : 'no';
+    update_post_meta($post_id, '_is_featured', $is_featured);
+}
+add_action('save_post_project', 'save_featured_meta');
+
+/**
+ * 添加分类图片支持
+ */
+function add_category_image_field() {
+    ?>
+    <div class="form-field">
+        <label for="category_image">分类图片</label>
+        <input type="hidden" id="category_image" name="category_image" class="custom_media_url" value="">
+        <div id="category-image-wrapper"></div>
+        <p>
+            <input type="button" class="button button-secondary" value="添加图片" id="add_category_image"/>
+            <input type="button" class="button button-secondary" value="删除图片" id="remove_category_image"/>
+        </p>
+    </div>
+    <?php
+}
+add_action('project_category_add_form_fields', 'add_category_image_field', 10, 2);
+
+/**
+ * 注册自定义文章类型
+ */
+function register_custom_post_types() {
+    // 注册 Project 文章类型
+    register_post_type('project', array(
+        'labels' => array(
+            'name'               => '项目',
+            'singular_name'      => '项目',
+            'menu_name'          => '项目',
+            'add_new'            => '添加项目',
+            'add_new_item'       => '添加新项目',
+            'edit_item'          => '编辑项目',
+            'new_item'           => '新项目',
+            'view_item'          => '查看项目',
+            'search_items'       => '搜索项目',
+            'not_found'          => '未找到项目',
+            'not_found_in_trash' => '回收站中未找到项目'
+        ),
+        'public'              => true,
+        'has_archive'         => true,
+        'show_in_menu'        => true,
+        'menu_icon'           => 'dashicons-building',
+        'supports'            => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'rewrite'            => array('slug' => 'projects')
+    ));
+
+    // 注册 Firm 文章类型
+    register_post_type('firm', array(
+        'labels' => array(
+            'name'               => '公司',
+            'singular_name'      => '公司',
+            'menu_name'          => '公司',
+            'add_new'            => '添加公司',
+            'add_new_item'       => '添加新公司',
+            'edit_item'          => '编辑公司',
+            'new_item'           => '新公司',
+            'view_item'          => '查看公司',
+            'search_items'       => '搜索公司',
+            'not_found'          => '未找到公司',
+            'not_found_in_trash' => '回收站中未找到公司'
+        ),
+        'public'              => true,
+        'has_archive'         => true,
+        'show_in_menu'        => true,
+        'menu_icon'           => 'dashicons-groups',
+        'supports'            => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'rewrite'            => array('slug' => 'firms')
+    ));
+
+    // 注册 Product 文章类型
+    register_post_type('product', array(
+        'labels' => array(
+            'name'               => '产品',
+            'singular_name'      => '产品',
+            'menu_name'          => '产品',
+            'add_new'            => '添加产品',
+            'add_new_item'       => '添加新产品',
+            'edit_item'          => '编辑产品',
+            'new_item'           => '新产品',
+            'view_item'          => '查看产品',
+            'search_items'       => '搜索产品',
+            'not_found'          => '未找到产品',
+            'not_found_in_trash' => '回收站中未找到产品'
+        ),
+        'public'              => true,
+        'has_archive'         => true,
+        'show_in_menu'        => true,
+        'menu_icon'           => 'dashicons-products',
+        'supports'            => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'rewrite'            => array('slug' => 'products')
+    ));
+}
+add_action('init', 'register_custom_post_types');
+
+/**
+ * 注册自定义分类法
+ */
+function register_custom_taxonomies() {
+    // 项目分类
+    register_taxonomy('project_category', 'project', array(
+        'labels' => array(
+            'name'              => '项目分类',
+            'singular_name'     => '项目分类',
+            'search_items'      => '搜索项目分类',
+            'all_items'         => '所有项目分类',
+            'parent_item'       => '父级项目分类',
+            'parent_item_colon' => '父级项目分类:',
+            'edit_item'         => '编辑项目分类',
+            'update_item'       => '更新项目分类',
+            'add_new_item'      => '添加新项目分类',
+            'new_item_name'     => '新项目分类名称'
+        ),
+        'hierarchical'      => true,
+        'show_ui'          => true,
+        'show_admin_column' => true,
+        'query_var'        => true,
+        'rewrite'          => array('slug' => 'project-category')
+    ));
+
+    // 产品分类
+    register_taxonomy('product_category', 'product', array(
+        'labels' => array(
+            'name'              => '产品分类',
+            'singular_name'     => '产品分类',
+            'search_items'      => '搜索产品分类',
+            'all_items'         => '所有产品分类',
+            'parent_item'       => '父级产品分类',
+            'parent_item_colon' => '父级产品分类:',
+            'edit_item'         => '编辑产品分类',
+            'update_item'       => '更新产品分类',
+            'add_new_item'      => '添加新产品分类',
+            'new_item_name'     => '新产品分类名称'
+        ),
+        'hierarchical'      => true,
+        'show_ui'          => true,
+        'show_admin_column' => true,
+        'query_var'        => true,
+        'rewrite'          => array('slug' => 'product-category')
+    ));
+}
+add_action('init', 'register_custom_taxonomies');
+
+/**
+ * 引入自定义函数
+ */
+require get_template_directory() . '/inc/template-functions.php';
 
