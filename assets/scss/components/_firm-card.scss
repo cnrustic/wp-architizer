@@ -1,0 +1,48 @@
+.firm-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin: 2rem 0;
+    
+    .firm-logo {
+        flex: 0 0 200px;
+        height: 200px;
+        padding: 1rem;
+        background: #f8f8f8;
+        border-radius: 8px;
+        
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+    
+    .firm-info {
+        flex: 1;
+        
+        h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .firm-location {
+            color: #666;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            
+            &:before {
+                content: '';
+                width: 16px;
+                height: 16px;
+                background: url('/wp-content/themes/wp-architizer/assets/images/location-icon.svg') no-repeat center;
+                margin-right: 0.5rem;
+            }
+        }
+    }
+} 
