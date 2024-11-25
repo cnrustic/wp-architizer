@@ -19,52 +19,84 @@
 </head>
 <body <?php body_class(); ?>>
 	<?php wp_body_open(); ?>
-	<header id="masthead" class="site-header">
-		<div class="header-container">
-			<!-- Logo -->
-			<div class="site-branding">
-				<?php if (has_custom_logo()): ?>
-					<?php the_custom_logo(); ?>
-				<?php else: ?>
-					<a href="<?php echo esc_url(home_url('/')); ?>" class="site-title">
-						<?php bloginfo('name'); ?>
+	<header class="site-header">
+		<div class="header-top">
+			<div class="container">
+				<div class="header-left">
+					<a href="<?php echo esc_url(home_url('/')); ?>" class="site-logo">
+						<?php
+						if (has_custom_logo()) {
+							the_custom_logo();
+						} else {
+							echo esc_html(get_bloginfo('name'));
+						}
+						?>
 					</a>
-				<?php endif; ?>
-			</div>
+				</div>
+				
+				<div class="header-center">
+					<nav class="main-navigation">
+						<?php
+						wp_nav_menu(array(
+							'theme_location' => 'primary',
+							'menu_class' => 'primary-menu',
+							'container' => false,
+						));
+						?>
+					</nav>
+				</div>
 
-			<!-- Main Navigation -->
-			<nav id="site-navigation" class="main-navigation">
-    			<?php
-   	 			wp_nav_menu(array(
-        			'theme_location' => 'menu-1',
-        			'menu_id'        => 'primary-menu',
-        			'container_class' => 'primary-menu-container',
-        			'items_wrap'     => '<ul id="%1$s" class="%2$s">%3$s</ul>',
-        			'fallback_cb'    => false,
-    			));
-    			?>
-			</nav>
+				<div class="header-right">
+					<div class="search-box">
+						<button class="search-toggle">
+							<span class="screen-reader-text">搜索</span>
+							<i class="fas fa-search"></i>
+						</button>
+						<div class="search-dropdown">
+							<?php get_search_form(); ?>
+						</div>
+					</div>
 
-			<!-- User Actions -->
-			<div class="user-actions">
-				<button class="search-toggle">
-					<svg width="24" height="24" viewBox="0 0 24 24">
-						<path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-					</svg>
-				</button>
-				<?php if (is_user_logged_in()): ?>
-					<a href="<?php echo esc_url(wp_logout_url(home_url())); ?>" class="logout-link">退出</a>
-				<?php else: ?>
-					<a href="<?php echo esc_url(wp_login_url()); ?>" class="login-link">登录</a>
-					<a href="<?php echo esc_url(wp_registration_url()); ?>" class="register-link">注册</a>
-				<?php endif; ?>
+					<?php if (is_user_logged_in()) : ?>
+						<div class="user-menu">
+							<button class="user-toggle">
+								<?php
+								$current_user = wp_get_current_user();
+								echo get_avatar($current_user->ID, 32);
+								?>
+							</button>
+							<div class="user-dropdown">
+								<ul>
+									<li><a href="<?php echo esc_url(home_url('/profile')); ?>">个人中心</a></li>
+									<li><a href="<?php echo esc_url(home_url('/favorites')); ?>">我的收藏</a></li>
+									<li><a href="<?php echo wp_logout_url(home_url()); ?>">退出登录</a></li>
+								</ul>
+							</div>
+						</div>
+					<?php else : ?>
+						<div class="auth-buttons">
+							<a href="<?php echo esc_url(home_url('/login')); ?>" class="btn btn-login">登录</a>
+							<a href="<?php echo esc_url(home_url('/register')); ?>" class="btn btn-register">注册</a>
+						</div>
+					<?php endif; ?>
+				</div>
 			</div>
 		</div>
 
-		<!-- Search Form -->
-		<div class="header-search">
-			<div class="search-container">
-				<?php get_search_form(); ?>
+		<div class="header-bottom">
+			<div class="container">
+				<nav class="category-navigation">
+					<?php
+					wp_nav_menu(array(
+						'theme_location' => 'category',
+						'menu_class' => 'category-menu',
+						'container' => false,
+					));
+					?>
+				</nav>
 			</div>
 		</div>
 	</header>
+
+	<!-- 搜索遮罩层 -->
+	<div class="search-overlay"></div>
