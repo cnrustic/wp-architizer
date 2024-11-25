@@ -10,7 +10,7 @@ const critical = require('critical').stream;
 
 // CSS任务
 gulp.task('styles', () => {
-    return gulp.src('assets/css/src/**/*.scss')
+    return gulp.src('assets/scss/**/*.scss')  // 修改为正确的 SCSS 源文件路径
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer())
         .pipe(cleanCSS())
@@ -21,8 +21,9 @@ gulp.task('styles', () => {
 // JavaScript任务
 gulp.task('scripts', () => {
     return gulp.src([
+        'assets/js/src/header.js',       // 添加 header.js
         'assets/js/src/utils.js',
-        'assets/js/src/performance-monitor.js',  // 添加这一行
+        'assets/js/src/performance-monitor.js',
         'assets/js/src/interactions.js',
         'assets/js/src/image-preview.js',
         'assets/js/src/social-share.js'
@@ -34,7 +35,7 @@ gulp.task('scripts', () => {
 
 // 图片优化任务
 gulp.task('images', () => {
-    return gulp.src('assets/images/src/**/*')
+    return gulp.src('assets/images/**/*')  // 修改为正确的图片源文件路径
         .pipe(imagemin([
             imagemin.mozjpeg({quality: 75, progressive: true}),
             imagemin.optipng({optimizationLevel: 5}),
@@ -45,9 +46,9 @@ gulp.task('images', () => {
                 ]
             })
         ]))
-        .pipe(gulp.dest('assets/images'))
+        .pipe(gulp.dest('assets/images/optimized'))  // 输出到优化后的目录
         .pipe(webp())
-        .pipe(gulp.dest('assets/images'));
+        .pipe(gulp.dest('assets/images/optimized/webp'));  // WebP 格式输出到单独目录
 });
 
 // 生成关键CSS
@@ -66,17 +67,23 @@ gulp.task('critical', () => {
                     height: 720,
                     width: 1280
                 }
-            ]
+            ],
+            ignore: {
+                atrule: ['@font-face']  // 忽略字体文件
+            }
         }))
         .pipe(gulp.dest('dist'));
 });
 
 // 监视文件变化
 gulp.task('watch', () => {
-    gulp.watch('assets/css/src/**/*.scss', gulp.series('styles'));
+    gulp.watch('assets/scss/**/*.scss', gulp.series('styles'));
     gulp.watch('assets/js/src/**/*.js', gulp.series('scripts'));
-    gulp.watch('assets/images/src/**/*', gulp.series('images'));
+    gulp.watch('assets/images/**/*', gulp.series('images'));
 });
 
 // 默认任务
-gulp.task('default', gulp.series('styles', 'scripts', 'images', 'critical')); 
+gulp.task('default', gulp.parallel('watch'));  // 修改为 parallel 并只运行 watch
+
+// 构建任务
+gulp.task('build', gulp.series('styles', 'scripts', 'images', 'critical'));
