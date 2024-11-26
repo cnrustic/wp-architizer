@@ -1,92 +1,49 @@
 const gulp = require('gulp');
 const sass = require('gulp-sass')(require('sass'));
-const cleanCSS = require('gulp-clean-css');
 const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
-const critical = require('critical').stream;
+const cleanCSS = require('gulp-clean-css');
+const sourcemaps = require('gulp-sourcemaps');
+const autoprefixer = require('gulp-autoprefixer');
 
-// CSS任务
-gulp.task('styles', async () => {
-    const autoprefixer = (await import('gulp-autoprefixer')).default;
-    
-    return gulp.src('assets/scss/**/*.scss')
+// CSS 任务
+gulp.task('css', function() {
+    return gulp.src([
+        'assets/scss/**/*.scss',
+        'assets/css/**/*.css'
+    ])
+        .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer())
-        .pipe(cleanCSS())
         .pipe(concat('combined.min.css'))
-        .pipe(gulp.dest('assets/css'));
+        .pipe(cleanCSS())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('assets/dist'));
 });
 
-// JavaScript任务
-gulp.task('scripts', () => {
+// JavaScript 任务
+gulp.task('js', function() {
     return gulp.src([
-        'assets/js/src/header.js',
-        'assets/js/src/utils.js',
-        'assets/js/src/performance-monitor.js',
-        'assets/js/src/interactions.js',
-        'assets/js/src/image-preview.js',
-        'assets/js/src/social-share.js',
-        'assets/js/src/home.js'
+        'assets/js/src/**/*.js',
+        'assets/js/*.js',
+        '!assets/js/*.min.js'
     ])
-    .pipe(concat('combined.min.js'))
-    .pipe(uglify())
-    .pipe(gulp.dest('assets/js'));
-});
-
-// 图片优化任务
-gulp.task('images', async () => {
-    const imagemin = (await import('gulp-imagemin')).default;
-    const webp = (await import('gulp-webp')).default;
-    
-    return gulp.src('assets/images/**/*')
-        .pipe(imagemin([
-            imagemin.mozjpeg({quality: 75, progressive: true}),
-            imagemin.optipng({optimizationLevel: 5}),
-            imagemin.svgo({
-                plugins: [
-                    {removeViewBox: false},
-                    {cleanupIDs: false}
-                ]
-            })
-        ]))
-        .pipe(gulp.dest('assets/images/optimized'))
-        .pipe(webp())
-        .pipe(gulp.dest('assets/images/optimized/webp'));
-});
-
-// 生成关键CSS
-gulp.task('critical', () => {
-    return gulp.src('*.php')
-        .pipe(critical({
-            base: './',
-            inline: true,
-            css: ['assets/css/combined.min.css'],
-            dimensions: [
-                {
-                    height: 500,
-                    width: 300
-                },
-                {
-                    height: 720,
-                    width: 1280
-                }
-            ],
-            ignore: {
-                atrule: ['@font-face']
-            }
-        }))
-        .pipe(gulp.dest('dist'));
+        .pipe(sourcemaps.init())
+        .pipe(concat('combined.min.js'))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('assets/dist'));
 });
 
 // 监视文件变化
-gulp.task('watch', () => {
-    gulp.watch('assets/scss/**/*.scss', gulp.series('styles'));
-    gulp.watch('assets/js/src/**/*.js', gulp.series('scripts'));
-    gulp.watch('assets/images/**/*', gulp.series('images'));
+gulp.task('watch', function() {
+    gulp.watch('assets/scss/**/*.scss', gulp.series('css'));
+    gulp.watch('assets/css/**/*.css', gulp.series('css'));
+    gulp.watch('assets/js/**/*.js', gulp.series('js'));
 });
 
 // 默认任务
-gulp.task('default', gulp.parallel('watch'));
+gulp.task('default', gulp.series('css', 'js'));
 
-// 构建任务
-gulp.task('build', gulp.series('styles', 'scripts', 'images', 'critical'));
+// 生产构建任务
+gulp.task('build', gulp.series('css', 'js'));

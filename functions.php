@@ -230,7 +230,7 @@ function register_custom_taxonomies() {
             'singular_name'     => '项目分类',
             'search_items'      => '搜索项目分类',
             'all_items'         => '所有项目分类',
-            'parent_item'       => '父级项目分类',
+            'parent_item'       => '父级项目分���',
             'parent_item_colon' => '父级项目分类:',
             'edit_item'         => '编辑项目分类',
             'update_item'       => '更新项目分类',
@@ -728,3 +728,27 @@ function architizer_save_meta_boxes($post_id) {
     }
 }
 add_action('save_post', 'architizer_save_meta_boxes');
+
+function architizer_scripts() {
+    // 开发环境使用未压缩版本
+    if (WP_DEBUG) {
+        // CSS 文件
+        wp_enqueue_style('architizer-main', get_template_directory_uri() . '/assets/css/main.css', array(), ARCHITIZER_VERSION);
+        
+        // JavaScript 文件
+        wp_enqueue_script('architizer-main', get_template_directory_uri() . '/assets/js/main.js', array('jquery'), ARCHITIZER_VERSION, true);
+        wp_enqueue_script('architizer-search', get_template_directory_uri() . '/assets/js/search.js', array('jquery'), ARCHITIZER_VERSION, true);
+        wp_enqueue_script('architizer-advanced-search', get_template_directory_uri() . '/assets/js/advanced-search.js', array('jquery'), ARCHITIZER_VERSION, true);
+    } else {
+        // 生产环境使用压缩版本
+        wp_enqueue_style('architizer-combined', get_template_directory_uri() . '/assets/dist/combined.min.css', array(), ARCHITIZER_VERSION);
+        wp_enqueue_script('architizer-combined', get_template_directory_uri() . '/assets/dist/combined.min.js', array('jquery'), ARCHITIZER_VERSION, true);
+    }
+
+    // 添加 AJAX URL
+    wp_localize_script('jquery', 'wpAjax', array(
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('architizer-ajax-nonce')
+    ));
+}
+add_action('wp_enqueue_scripts', 'architizer_scripts');

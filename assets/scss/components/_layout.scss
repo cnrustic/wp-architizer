@@ -48,4 +48,127 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
     }
+}
+
+// Header 样式
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+
+    &.header-hidden {
+        transform: translateY(-100%);
+    }
+
+    .header-top {
+        background: var(--primary-color);
+        color: #fff;
+        padding: 8px 0;
+        font-size: 14px;
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+
+    .header-main {
+        padding: 20px 0;
+
+        .container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+    }
+}
+
+// Footer 样式
+.site-footer {
+    background: #1a1a1a;
+    color: #fff;
+    padding-top: 60px;
+
+    .footer-widgets {
+        padding-bottom: 40px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 40px;
+        }
+    }
+
+    .footer-bottom {
+        padding: 20px 0;
+        font-size: 14px;
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+}
+
+// Sidebar 样式
+.primary-sidebar {
+    width: 300px;
+    flex-shrink: 0;
+
+    .widget {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        .widget-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+    }
+}
+
+// 响应式布局
+@media (max-width: 1024px) {
+    .footer-widgets .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .site-header {
+        .header-main .container {
+            gap: 20px;
+        }
+
+        .main-navigation {
+            display: none;
+        }
+    }
+
+    .primary-sidebar {
+        width: 100%;
+        margin-top: 30px;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-widgets .footer-grid {
+        grid-template-columns: 1fr;
+    }
 } 

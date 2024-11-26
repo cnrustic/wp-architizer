@@ -35,6 +35,15 @@ wp-config.php
 # htaccess
 /.htaccess
 
+# 忽略 node 模块
+node_modules/
+
+# 忽略编译后的文件
+assets/dist/*.map
+
+# 忽略系统文件
+.DS_Store
+Thumbs.db
 # All plugins
 #
 # Note: If you wish to whitelist plugins,
