@@ -19,71 +19,52 @@
 </head>
 <body <?php body_class(); ?>>
 	<?php wp_body_open(); ?>
-	<header class="site-header">
-		<div class="header-top">
-			<div class="container">
-				<div class="header-top-left">
-					<a href="<?php echo home_url('/submit-project'); ?>" class="submit-btn">
-						<i class="fas fa-plus"></i> 提交项目
+	<header id="Header" class="site-header">
+		<!-- 顶部黄色通知栏 -->
+		<div id="sticky-banner" class="bg-yellow-500">
+			<div class="row align-middle text-center">
+				<div class="column align-middle">
+					<a href="#" class="black">
+						展示你的作品，参加第13届 A+ 奖项！12月6日前报名 →
 					</a>
 				</div>
-				<div class="header-top-right">
-					<?php if (is_user_logged_in()): ?>
-						<div class="user-menu">
-							<?php 
-							$current_user = wp_get_current_user();
-							$avatar = get_avatar_url($current_user->ID);
-							?>
-							<button class="user-menu-trigger">
-								<img src="<?php echo $avatar; ?>" alt="用户头像">
-								<span><?php echo $current_user->display_name; ?></span>
-							</button>
-							<div class="user-dropdown">
-								<a href="<?php echo get_author_posts_url($current_user->ID); ?>">我的主页</a>
-								<a href="<?php echo home_url('/dashboard'); ?>">控制面板</a>
-								<a href="<?php echo wp_logout_url(home_url()); ?>">退出登录</a>
-							</div>
-						</div>
-					<?php else: ?>
-						<a href="<?php echo wp_login_url(); ?>" class="login-btn">登录</a>
-						<a href="<?php echo wp_registration_url(); ?>" class="register-btn">注册</a>
-					<?php endif; ?>
+				<div class="shrink cursor-pointer pl-0 text-right">
+					<i class="fas fa-times"></i>
 				</div>
 			</div>
 		</div>
 
-		<div class="header-main">
-			<div class="container">
-				<div class="site-branding">
-					<?php if (has_custom_logo()): ?>
-						<?php the_custom_logo(); ?>
-					<?php else: ?>
-						<a href="<?php echo home_url(); ?>" class="site-title">
-							<?php bloginfo('name'); ?>
-						</a>
-					<?php endif; ?>
+		<!-- 桌面端导航 -->
+		<div id="large-screen-header" class="bg-black hide-for-small-only">
+			<div class="row align-justify">
+				<!-- Logo -->
+				<div class="shrink align-self-middle">
+					<?php the_custom_logo(); ?>
 				</div>
-
-				<nav class="main-navigation">
+				
+				<!-- 主导航 -->
+				<div class="column align-self-middle">
 					<?php
-					wp_nav_menu([
+					wp_nav_menu(array(
 						'theme_location' => 'primary',
-						'container' => false,
-						'menu_class' => 'primary-menu',
-						'fallback_cb' => false
-					]);
+						'menu_class'     => 'main-nav',
+						'container'      => false,
+					));
 					?>
-				</nav>
-
-				<div class="header-actions">
-					<button class="search-trigger">
-						<i class="fas fa-search"></i>
-					</button>
-					<button class="mobile-menu-trigger">
-						<span></span>
-						<span></span>
-						<span></span>
-					</button>
+				</div>
+				
+				<!-- 右侧搜索和用户菜单 -->
+				<div class="shrink align-self-middle pr-0">
+					<div class="header-actions">
+						<a href="#" class="search-trigger">
+							<i class="fas fa-search"></i>
+						</a>
+						<?php if (is_user_logged_in()): ?>
+							<a href="<?php echo wp_logout_url(home_url()); ?>">退出</a>
+						<?php else: ?>
+							<a href="<?php echo wp_login_url(); ?>">登录</a>
+						<?php endif; ?>
+					</div>
 				</div>
 			</div>
 		</div>
