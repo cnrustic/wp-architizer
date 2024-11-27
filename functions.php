@@ -361,7 +361,7 @@ function architizer_enqueue_scripts() {
     wp_enqueue_style('architizer-header', get_template_directory_uri() . '/assets/css/header.css');
     
     // 加载自定义脚本
-    wp_enqueue_script('architizer-header', get_template_directory_uri() . '/assets/js/header.js', array(), '1.0', true);
+    wp_enqueue_script('architizer-header', get_template_directory_uri() . '/assets/js/src/header.js', array(), '1.0', true);
 
     // 注册并加载 home.js
     wp_enqueue_script(
@@ -737,14 +737,26 @@ add_action('save_post', 'architizer_save_meta_boxes');
 function architizer_scripts() {
     // 开发环境使用未压缩版本
     if (WP_DEBUG) {
-        // CSS 文件
+        // 开发环境: 加载未压缩的独立文件
+        wp_enqueue_style('architizer-header', 
+            get_template_directory_uri() . '/assets/css/header.css', 
+            array(), 
+            THEME_VERSION
+        );
+        
         wp_enqueue_style('architizer-main', 
             get_template_directory_uri() . '/assets/css/main.css', 
             array(), 
             '1.0.0'  // 修改：使用字符串形式的版本号
         );
         
-        // JavaScript 文件
+        // 开发环境的 JS 文件
+        wp_enqueue_script('architizer-header', 
+            get_template_directory_uri() . '/assets/js/src/header.js', 
+            array('jquery'), 
+            '1.0.0', 
+            true
+        );
         wp_enqueue_script('architizer-main', 
             get_template_directory_uri() . '/assets/js/main.js', 
             array('jquery'), 
@@ -830,3 +842,17 @@ function architizer_settings_page() {
     </div>
     <?php
 }
+
+// 注册导航菜单
+register_nav_menus(array(
+    'primary' => '主导航菜单',
+    'mobile' => '移动端菜单'
+));
+
+// 添加自定义logo支持
+add_theme_support('custom-logo', array(
+    'height'      => 30,
+    'width'       => 120,
+    'flex-height' => true,
+    'flex-width'  => true
+));
