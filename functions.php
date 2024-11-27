@@ -107,43 +107,47 @@ add_action('widgets_init', 'architizer_widgets_init');
 function wp_architizer_scripts() {
     $version = defined('WP_DEBUG') && WP_DEBUG ? time() : THEME_VERSION;
     
-    // 基础样式
-    wp_enqueue_style('wp-architizer-style', get_stylesheet_uri(), array(), $version);
-    wp_enqueue_style('wp-architizer-main', get_template_directory_uri() . '/assets/css/main.css', array(), $version);
-    
-     // 基础脚本 - 调整加载顺序
-     wp_enqueue_script('jquery');
-    // Header脚本 - 确保在DOM加载完成后执行
-    wp_enqueue_script('wp-architizer-header',
-        get_template_directory_uri() . '/assets/js/src/header.js',
-        array('jquery'),
-        $version,
-        false  // 改为false，让它在头部加载
-    ); 
-    wp_enqueue_script('wp-architizer-main', 
-        get_template_directory_uri() . '/assets/js/main.js', 
-        array('jquery', 'wp-architizer-header'), 
-        $version, 
-        true
-    );
-    // 搜索脚本
-    wp_enqueue_script('wp-architizer-search', 
-        get_template_directory_uri() . '/assets/js/search.js', 
-        array('jquery'), 
-        $version, 
-        true
-    );
-    // 只在产品详情页加载画廊脚本
-    if (is_singular('product')) {
-        wp_enqueue_script('wp-architizer-product-gallery', 
-            get_template_directory_uri() . '/assets/js/product-gallery.js', 
+    if (WP_DEBUG) {
+        // 开发环境
+        wp_enqueue_style('architizer-header', 
+            get_template_directory_uri() . '/assets/css/header.css', 
             array(), 
-            $version, 
+            $version
+        );
+        
+        wp_enqueue_script('architizer-header', 
+            get_template_directory_uri() . '/assets/js/src/header.js', 
+            array('jquery'), 
+            $version,
+            false  // 头部加载
+        );
+        
+        // 其他开发环境资源...
+        
+    } else {
+        // 生产环境
+        wp_enqueue_style('architizer-combined', 
+            get_template_directory_uri() . '/assets/dist/combined.min.css', 
+            array(), 
+            $version
+        );
+        
+        wp_enqueue_script('architizer-combined', 
+            get_template_directory_uri() . '/assets/dist/combined.min.js', 
+            array('jquery'), 
+            $version,
             true
         );
-    } 
+    }
+
+    // AJAX 配置
+    wp_localize_script('jquery', 'wpAjax', array(
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('architizer-ajax-nonce')
+    ));
 }
-add_action('wp_enqueue_scripts', 'wp_architizer_scripts', 10);
+
+add_action('wp_enqueue_scripts', 'wp_architizer_scripts');
 /**
  * 注册自定义文章类型
  */
@@ -369,7 +373,7 @@ function architizer_enqueue_scripts() {
         get_template_directory_uri() . '/assets/js/src/home.js',
         array('jquery'),  // 依赖 jQuery
         '1.0.0',         // 版本号
-        true             // 在页面底部加载
+        true             // 在页面底部加
     );
 
     // 加载合并后的 JS 文件
@@ -856,3 +860,34 @@ add_theme_support('custom-logo', array(
     'flex-height' => true,
     'flex-width'  => true
 ));
+
+if (!function_exists('is_user_verified')) {
+    function is_user_verified() {
+        if (!is_user_logged_in()) {
+            return false;
+        }
+        $user_id = get_current_user_id();
+        return (bool) get_user_meta($user_id, 'email_verified', true);
+    }
+}
+
+if (!function_exists('get_verification_url')) {
+    function get_verification_url() {
+        return add_query_arg('action', 'verify_email', home_url('/'));
+    }
+}
+
+// 确保菜单位置已正确注册
+function register_theme_menus() {
+    register_nav_menus(array(
+        'header-menu' => __('Header Menu', 'architizer'),
+        'mobile' => __('Mobile Menu', 'architizer')
+    ));
+}
+add_action('after_setup_theme', 'register_theme_menus');
+
+function enqueue_icon_fonts() {
+    wp_enqueue_style('material-icons', 'https://fonts.googleapis.com/icon?family=Material+Icons');
+    wp_enqueue_style('font-awesome', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+}
+add_action('wp_enqueue_scripts', 'enqueue_icon_fonts');
