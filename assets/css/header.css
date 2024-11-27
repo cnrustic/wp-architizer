@@ -1,22 +1,253 @@
-/* Header 样式 */
+/* 基础样式 */
 #Header {
     position: fixed;
     top: 0;
-    left: 0;
     width: 100%;
+    height: 3rem;
     z-index: 1000;
+    background: #292929;
     font-size: 1rem;
     user-select: none;
 }
-
-#sticky-banner {
+  
+  /* 大屏幕导航 */
+  #large-screen-header {
     height: 3rem;
-    background-color: #ffcd00;
-}
-
-#large-screen-header {
+    width: 100%;
+    margin: 0;
+  }
+  
+  #large-screen-header .row {
+    max-width: 100%;
+    margin: 0 auto;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-flow: row wrap;
+    flex-flow: row wrap;
+    -ms-flex-align: center;
+    align-items: center;
+  }
+  
+  #large-screen-header .row:before,
+  #large-screen-header .row:after {
+    display: none;
+  }
+  
+  /* Logo 区域 */
+  .site-header__logo {
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    -ms-flex-item-align: center;
+    align-self: center;
+    padding: 0.78125rem;
+    padding-right: 0;
+  }
+  
+  .site-header__logo img {
+    width: 72px;
+    height: 24px;
+  }
+  
+  /* 导航菜单 */
+  .site-header__nav {
+    -ms-flex: 1;
+    flex: 1;
+    -ms-flex-item-align: center;
+    align-self: center;
+    padding: 0.78125rem;
+    height: 40px;
+  }
+  
+  .site-header__nav .menu {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* 搜索框 */
+  .site-header__search {
+    -ms-flex: 1 0 auto;
+    flex: 1 0 auto;
+    position: relative;
+  }
+  
+  .site-header__search form {
+    width: 962.95px;
+    height: 39px;
+  }
+  
+  /* 用户下拉菜单 */
+  .user-dropdown__content {
+    width: 250px;
+    background: #2e2e2e;
+  }
+  
+  .user-dropdown__content .menu-item {
+    width: 246px;
+    height: 26px;
+    padding: 8.2px;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+  }
+  
+  .user-dropdown__content .menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .user-dropdown__content .menu-item-icon .material-icons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #9e9e9e;
+    line-height: 1;
+    vertical-align: middle;
+  }
+  
+  .user-dropdown__content .menu-item-text {
+    -ms-flex: 1;
+    flex: 1;
+    padding-left: 0;
+    padding-right: 12.5px;
+    width: 188px;
+    height: 24px;
+    color: #9e9e9e;
+  }
+  
+  .user-dropdown__content .menu-item-text:hover {
+    color: #fff;
+  }
+  
+  /* 工具提示 */
+  .tooltip {
+    display: none;
+    position: absolute;
+    font-size: 11px;
+    line-height: 13.2px;
+    background: rgba(41, 40, 39, 0.7);
+    min-width: 60px;
+    min-height: 13.2px;
+    padding: 6px;
+    color: #ebeae8;
+    white-space: nowrap;
+    max-width: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    box-shadow: none;
+    -webkit-transition: box-shadow 1.5s ease-in-out;
+    transition: box-shadow 1.5s ease-in-out;
+  }
+  
+  /* 通知横幅 */
+  .banner {
+    width: 100%;
+  }
+  
+  .banner--unverified {
+    background-color: #E47746;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    overflow: hidden;
+  }
+  
+  .banner--unverified a {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.75);
+  }
+  
+  .banner--unverified a:hover {
+    border-bottom-color: rgba(255, 255, 255, 1);
+  }
+  
+  .banner--sso {
     height: 3rem;
-    background-color: #292929;
-}
+  }
+  
+  /* 响应式布局 */
+  @media screen and (min-width: 75em) {
+    .site-header__search {
+      width: 100%;
+    }
+    
+    .row .row {
+      margin-right: -0.78125rem;
+      margin-left: -0.78125rem;
+    }
+  }
+  
+  @media screen and (max-width: 39.9375em) {
+    .banner--unverified,
+    .banner--sso {
+      font-size: 0.85rem;
+    }
+    
+    .banner--unverified i,
+    .banner--sso i {
+      font-size: 1rem;
+    }
+  }
+  
+  /* 工具类 */
+  .align-self-middle {
+    -ms-flex-item-align: center;
+    align-self: center;
+    -ms-grid-row-align: center;
+  }
+  
+  .shrink {
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+  
+  .pl-0 {
+    padding-left: 0 !important;
+  }
+  
+  .pr-0 {
+    padding-right: 0 !important;
+  }
+  
+  .fs-m {
+    font-size: 1.25rem;
+  }
+  
+  .bg-gray-900 {
+    background-color: #2e2e2e !important;
+  }
 
 /* 其他样式将被合并到 combined.min.css */ 
+
+.hide {
+    display: none !important;
+}
+
+#sticky-banner {
+    background: #ffcd00;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.sticky-banner__content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sticky-banner__close {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+} 
