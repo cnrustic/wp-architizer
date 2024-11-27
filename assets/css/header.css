@@ -1,0 +1,22 @@
+/* Header 样式 */
+#Header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    font-size: 1rem;
+    user-select: none;
+}
+
+#sticky-banner {
+    height: 3rem;
+    background-color: #ffcd00;
+}
+
+#large-screen-header {
+    height: 3rem;
+    background-color: #292929;
+}
+
+/* 其他样式将被合并到 combined.min.css */ 
