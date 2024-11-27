@@ -21,8 +21,8 @@ if (!defined('_S_VERSION')) {
  * 主题基础设置
  */
 function architizer_setup() {
-    // 多语言支持
-    load_theme_textdomain('architizer', get_template_directory() . '/languages');
+    // 将多语言支持移动到 init 钩子
+    add_action('init', 'architizer_load_theme_textdomain');
 
     // RSS Feed支持
     add_theme_support('automatic-feed-links');
@@ -230,7 +230,7 @@ function register_custom_taxonomies() {
             'singular_name'     => '项目分类',
             'search_items'      => '搜索项目分类',
             'all_items'         => '所有项目分类',
-            'parent_item'       => '父级项目分���',
+            'parent_item'       => '父级项目分',
             'parent_item_colon' => '父级项目分类:',
             'edit_item'         => '编辑项目分类',
             'update_item'       => '更新项目分类',
@@ -635,7 +635,12 @@ require get_template_directory() . '/inc/taxonomies.php';
 if (defined('JETPACK__VERSION')) {
     require get_template_directory() . '/inc/jetpack.php';
 }
+if (!defined('ABSPATH')) {
+    exit;
+}
 
+// 加载翻译功能
+require_once get_template_directory() . '/inc/translations.php';
 function wp_architizer_enqueue_styles() {
     $version = defined('WP_DEBUG') && WP_DEBUG ? time() : THEME_VERSION;
     
@@ -733,16 +738,44 @@ function architizer_scripts() {
     // 开发环境使用未压缩版本
     if (WP_DEBUG) {
         // CSS 文件
-        wp_enqueue_style('architizer-main', get_template_directory_uri() . '/assets/css/main.css', array(), ARCHITIZER_VERSION);
+        wp_enqueue_style('architizer-main', 
+            get_template_directory_uri() . '/assets/css/main.css', 
+            array(), 
+            '1.0.0'  // 修改：使用字符串形式的版本号
+        );
         
         // JavaScript 文件
-        wp_enqueue_script('architizer-main', get_template_directory_uri() . '/assets/js/main.js', array('jquery'), ARCHITIZER_VERSION, true);
-        wp_enqueue_script('architizer-search', get_template_directory_uri() . '/assets/js/search.js', array('jquery'), ARCHITIZER_VERSION, true);
-        wp_enqueue_script('architizer-advanced-search', get_template_directory_uri() . '/assets/js/advanced-search.js', array('jquery'), ARCHITIZER_VERSION, true);
+        wp_enqueue_script('architizer-main', 
+            get_template_directory_uri() . '/assets/js/main.js', 
+            array('jquery'), 
+            '1.0.0',  // 修改：使用字符串形式的版本号
+            true
+        );
+        wp_enqueue_script('architizer-search', 
+            get_template_directory_uri() . '/assets/js/search.js', 
+            array('jquery'), 
+            '1.0.0',  // 修改：使用字符串形式的版本号
+            true
+        );
+        wp_enqueue_script('architizer-advanced-search', 
+            get_template_directory_uri() . '/assets/js/advanced-search.js', 
+            array('jquery'), 
+            '1.0.0',  // 修改：使用字符串形式的版本号
+            true
+        );
     } else {
         // 生产环境使用压缩版本
-        wp_enqueue_style('architizer-combined', get_template_directory_uri() . '/assets/dist/combined.min.css', array(), ARCHITIZER_VERSION);
-        wp_enqueue_script('architizer-combined', get_template_directory_uri() . '/assets/dist/combined.min.js', array('jquery'), ARCHITIZER_VERSION, true);
+        wp_enqueue_style('architizer-combined', 
+            get_template_directory_uri() . '/assets/dist/combined.min.css', 
+            array(), 
+            '1.0.0'  // 修改：使用字符串形式的版本号
+        );
+        wp_enqueue_script('architizer-combined', 
+            get_template_directory_uri() . '/assets/dist/combined.min.js', 
+            array('jquery'), 
+            '1.0.0',  // 修改：使用字符串形式的版本号
+            true
+        );
     }
 
     // 添加 AJAX URL
@@ -752,3 +785,48 @@ function architizer_scripts() {
     ));
 }
 add_action('wp_enqueue_scripts', 'architizer_scripts');
+
+/**
+ * 添加管理菜单
+ */
+function architizer_add_admin_menus() {
+    // 添加主题设置菜单
+    add_menu_page(
+        '主题设置',           // 页面标题
+        '主题设置',           // 菜单标题
+        'manage_options',     // 所需权限
+        'architizer-settings', // 菜单slug
+        'architizer_settings_page', // 回调函数
+        'dashicons-admin-generic', // 图标
+        60                    // 位置
+    );
+
+    // 添加子菜单
+    add_submenu_page(
+        'architizer-settings',    // 父菜单slug
+        '常规设置',              // 页面标题
+        '常规设置',              // 菜单标题
+        'manage_options',         // 所需权限
+        'architizer-settings',    // 菜单slug（与父菜单相同）
+        'architizer_settings_page' // 回调函数
+    );
+}
+add_action('admin_menu', 'architizer_add_admin_menus');
+
+/**
+ * 设置页面回调
+ */
+function architizer_settings_page() {
+    ?>
+    <div class="wrap">
+        <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+        <form method="post" action="options.php">
+            <?php
+            settings_fields('architizer_options');
+            do_settings_sections('architizer-settings');
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
+}
