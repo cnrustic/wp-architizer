@@ -8,10 +8,7 @@ const autoprefixer = require('gulp-autoprefixer');
 
 // CSS 任务
 gulp.task('css', function() {
-    return gulp.src([
-        'assets/scss/**/*.scss',
-        'assets/css/**/*.css'
-    ])
+    return gulp.src(['assets/scss/**/*.scss', 'assets/css/**/*.css'])
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(autoprefixer())
@@ -23,11 +20,7 @@ gulp.task('css', function() {
 
 // JavaScript 任务
 gulp.task('js', function() {
-    return gulp.src([
-        'assets/js/src/**/*.js',
-        'assets/js/*.js',
-        '!assets/js/*.min.js'
-    ])
+    return gulp.src(['assets/js/src/**/*.js', 'assets/js/*.js', '!assets/js/*.min.js'])
         .pipe(sourcemaps.init())
         .pipe(concat('combined.min.js'))
         .pipe(uglify())
@@ -43,7 +36,13 @@ gulp.task('watch', function() {
 });
 
 // 默认任务
-gulp.task('default', gulp.series('css', 'js'));
+gulp.task('default', gulp.series('css', 'js', function(done) {
+    console.log('默认任务执行中...');
+    done();
+}));
 
 // 生产构建任务
-gulp.task('build', gulp.series('css', 'js'));
+gulp.task('build', gulp.series('css', 'js', function(done) {
+    console.log('生产构建任务执行中...');
+    done();
+}));
