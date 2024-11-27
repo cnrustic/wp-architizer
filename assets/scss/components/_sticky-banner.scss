@@ -1,0 +1,45 @@
+#sticky-banner {
+    overflow: hidden;
+    position: relative;
+    height: 3rem;
+    width: 100%;
+    background: #fff; // 可根据需要调整背景色
+    z-index: 1000;
+    
+    // 移动端适配
+    @media screen and (max-width: 39.9375em) {
+        font-size: 0.85rem;
+        
+        i {
+            font-size: 1rem;
+        }
+    }
+    
+    // 建议添加的补充样式
+    &__content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 0 1rem;
+    }
+    
+    &__close {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        padding: 0.5rem;
+        
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+    
+    // 隐藏动画
+    &.hide {
+        height: 0;
+        transition: height 0.3s ease-out;
+    }
+} 
