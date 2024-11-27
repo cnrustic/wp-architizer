@@ -11,16 +11,41 @@
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
-    "gulp": "^4.0.2",
-    "gulp-sass": "^4.1.0",
+    "css": "^3.0.0",
+    "debug-fabulous": "^2.0.8",
+    "gulp": "^5.0.0",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
-    "gulp-uglify": "^3.0.2",
-    "gulp-clean-css": "^4.2.0",
+    "gulp-sass": "^5.1.0",
     "gulp-sourcemaps": "^3.0.0",
-    "gulp-autoprefixer": "^3.1.0",
-    "sass": "^1.32.0"
+    "gulp-uglify": "^3.0.2",
+    "sass": "^1.81.0",
+    "source-map": "^0.7.4",
+    "source-map-generator": "^0.8.0",
+    "through2": "^4.0.2",
+    "undertaker": "^2.0.0",
+    "vinyl-sourcemaps-apply": "^0.2.1"
   },
   "dependencies": {
-    "jquery": "^3.6.0"
-  }
+    "browser-sync": "^3.0.3",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-imagemin": "^9.1.0",
+    "jquery": "^3.6.0",
+    "object.defaults": "^1.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cnrustic/wp-architizer.git"
+  },
+  "keywords": [
+    "wordpres",
+    "theme"
+  ],
+  "bugs": {
+    "url": "https://github.com/cnrustic/wp-architizer/issues"
+  },
+  "homepage": "https://github.com/cnrustic/wp-architizer#readme"
 }
