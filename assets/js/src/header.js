@@ -16,10 +16,19 @@
             this.$userDropdown = $('.user-dropdown');
             this.$mobileMenuToggle = $('.mobile-menu-toggle');
             this.$mobileMenu = $('.mobile-menu');
+            this.$stickyBanner = $('#sticky-banner');
+            this.$stickyBannerClose = $('.sticky-banner__close');
+            this.$dropdownContent = $('.dropdown-content');
+            this.$searchToggleBtn = $('.search-toggle-btn');
+            this.$searchClose = $('.search-close');
+            this.$mobileSearchExpanded = $('.mobile-search-expanded');
+            this.$searchInput = $('.mobile-search-expanded .search-input');
             
             // 状态变量
             this.lastScrollTop = 0;
             this.isSearchActive = false;
+            this.isMobileMenuOpen = false;
+            this.isUserDropdownOpen = false;
             
             this.init();
         }
@@ -29,188 +38,116 @@
             this.initScrollBehavior();
             this.initMobileMenu();
             this.initSearchAutocomplete();
+            this.initStickyBanner();
+            this.initDropdownHover();
+            this.bindMobileEvents();
+            this.bindMobileSearchEvents();
         }
 
         bindEvents() {
-            // 搜索相关
-            this.$searchToggle.on('click', (e) => {
+            // 绑定横幅关闭事件
+            this.$stickyBannerClose.on('click', (e) => {
                 e.preventDefault();
-                this.toggleSearch();
-            });
-
-            // 搜索快捷键
-            $(document).on('keydown', (e) => {
-                if (e.key === '/' && !this.isSearchActive) {
-                    e.preventDefault();
-                    this.toggleSearch();
-                }
-                if (e.key === 'Escape' && this.isSearchActive) {
-                    this.closeSearch();
-                }
-            });
-
-            // 用户菜单
-            this.$userToggle.on('click', (e) => {
-                e.preventDefault();
-                this.toggleUserMenu();
-            });
-
-            // 移动菜单
-            this.$mobileMenuToggle.on('click', (e) => {
-                e.preventDefault();
-                this.toggleMobileMenu();
-            });
-
-            // 点击外部关闭
-            $(document).on('click', (event) => {
-                this.handleClickOutside(event);
-            });
-        }
-
-        // 搜索功能
-        toggleSearch() {
-            this.isSearchActive = !this.isSearchActive;
-            this.$searchDropdown.toggleClass('active');
-            this.$searchOverlay.toggleClass('active');
-            
-            if (this.isSearchActive) {
-                this.$searchInput.focus();
-                $('body').addClass('search-active');
-            } else {
-                $('body').removeClass('search-active');
-            }
-        }
-
-        closeSearch() {
-            this.isSearchActive = false;
-            this.$searchDropdown.removeClass('active');
-            this.$searchOverlay.removeClass('active');
-            $('body').removeClass('search-active');
-        }
-
-        // 搜索自动完成
-        initSearchAutocomplete() {
-            let searchTimeout;
-            
-            this.$searchInput.on('input', (e) => {
-                clearTimeout(searchTimeout);
-                const query = e.target.value;
+                e.stopPropagation();
+                this.closeStickyBanner();
                 
-                if (query.length >= 2) {
-                    searchTimeout = setTimeout(() => {
-                        this.performSearch(query);
-                    }, 300);
-                }
+                // 调试输出
+                console.log('Banner close button clicked');
             });
         }
 
-        async performSearch(query) {
-            try {
-                const response = await $.ajax({
-                    url: '/wp-json/wp/v2/search',
+        // 关闭顶部横幅
+        closeStickyBanner() {
+            console.log('Closing banner...');
+            
+            this.$stickyBanner.slideUp(300, () => {
+                $('body').removeClass('has-banner');
+                this.$header.css('top', 0);
+                
+                // 发送 AJAX 请求
+                $.ajax({
+                    url: wpAjax.ajaxUrl,
+                    type: 'POST',
                     data: {
-                        search: query,
-                        type: 'post',
-                        subtype: ['post', 'project', 'product', 'firm'],
-                        per_page: 5
+                        action: 'close_banner',
+                        nonce: wpAjax.nonce
+                    },
+                    success: (response) => {
+                        console.log('Banner close AJAX response:', response);
+                    },
+                    error: (xhr, status, error) => {
+                        console.error('Banner close AJAX error:', error);
                     }
                 });
-                this.updateSearchResults(response);
-            } catch (error) {
-                console.error('Search error:', error);
-            }
-        }
-
-        updateSearchResults(results) {
-            const $resultsContainer = this.$searchDropdown.find('.search-results');
-            $resultsContainer.html('');
-            
-            if (results.length) {
-                const items = results.map(item => `
-                    <a href="${item.url}" class="search-result-item">
-                        <span class="result-type">${item.subtype}</span>
-                        <span class="result-title">${item.title}</span>
-                    </a>
-                `).join('');
-                $resultsContainer.html(items);
-            } else {
-                $resultsContainer.html('<div class="no-results">未找到相关结果</div>');
-            }
-        }
-
-        // 滚动行为
-        initScrollBehavior() {
-            let headerHeight = this.$header.outerHeight();
-            
-            $(window).on('scroll', () => {
-                const scrollTop = $(window).scrollTop();
-                
-                // 向上滚动显示，向下滚动隐藏
-                if (scrollTop > this.lastScrollTop && scrollTop > headerHeight) {
-                    this.$header.addClass('header-hidden');
-                } else {
-                    this.$header.removeClass('header-hidden');
-                }
-                
-                // 滚动时添加阴影
-                if (scrollTop > 0) {
-                    this.$header.addClass('header-shadow');
-                } else {
-                    this.$header.removeClass('header-shadow');
-                }
-                
-                this.lastScrollTop = scrollTop;
             });
         }
 
-        // 移动端菜单
-        initMobileMenu() {
-            // 添加子菜单展开功能
-            this.$mobileMenu.find('.menu-item-has-children > a').after('<button class="submenu-toggle"><i class="fas fa-chevron-down"></i></button>');
-            
-            this.$mobileMenu.on('click', '.submenu-toggle', function(e) {
-                e.preventDefault();
-                const $submenu = $(this).siblings('.sub-menu');
-                const $icon = $(this).find('i');
-                
-                $submenu.slideToggle(300);
-                $icon.toggleClass('fa-chevron-down fa-chevron-up');
+        // 初始化横幅
+        initStickyBanner() {
+            // 检查是否之前已关闭
+            if (localStorage.getItem('stickyBannerClosed') === 'true') {
+                this.$stickyBanner.hide();
+                this.$header.css('top', 0);
+            }
+        }
+
+        bindMobileEvents() {
+            // 打开移动端菜单
+            this.$mobileMenuToggle.on('click', () => {
+                this.$mobileMenu.addClass('active');
+                $('body').addClass('menu-open');
             });
-        }
 
-        toggleMobileMenu() {
-            this.$mobileMenu.toggleClass('active');
-            this.$mobileMenuToggle.toggleClass('active');
-            $('body').toggleClass('mobile-menu-active');
-        }
-
-        toggleUserMenu() {
-            this.$userDropdown.toggleClass('active');
-        }
-
-        handleClickOutside(event) {
-            // 搜索框点击外部关闭
-            if (!$(event.target).closest('.search-box').length) {
-                this.closeSearch();
-            }
-
-            // 用户菜单点击外部关闭
-            if (!$(event.target).closest('.user-menu').length) {
-                this.$userDropdown.removeClass('active');
-            }
-
-            // 移动菜单点击外部关闭
-            if (!$(event.target).closest('.mobile-menu, .mobile-menu-toggle').length) {
+            // 关闭移动端菜单
+            $('.mobile-menu-close').on('click', () => {
                 this.$mobileMenu.removeClass('active');
-                this.$mobileMenuToggle.removeClass('active');
-                $('body').removeClass('mobile-menu-active');
-            }
+                $('body').removeClass('menu-open');
+            });
+
+            // 点击菜单外区域关闭
+            $(document).on('click', (e) => {
+                if (
+                    this.$mobileMenu.hasClass('active') &&
+                    !$(e.target).closest('.mobile-menu').length &&
+                    !$(e.target).closest('.mobile-menu-toggle').length
+                ) {
+                    this.$mobileMenu.removeClass('active');
+                    $('body').removeClass('menu-open');
+                }
+            });
+        }
+
+        bindMobileSearchEvents() {
+            // 打开搜索框
+            this.$searchToggleBtn.on('click', () => {
+                this.$mobileSearchExpanded.addClass('active');
+                setTimeout(() => {
+                    this.$searchInput.focus();
+                }, 100);
+            });
+
+            // 关闭搜索框
+            this.$searchClose.on('click', () => {
+                this.$mobileSearchExpanded.removeClass('active');
+            });
+
+            // 点击外部关闭搜索框
+            $(document).on('click', (e) => {
+                if (
+                    this.$mobileSearchExpanded.hasClass('active') &&
+                    !$(e.target).closest('.mobile-search-expanded').length &&
+                    !$(e.target).closest('.mobile-search-toggle').length
+                ) {
+                    this.$mobileSearchExpanded.removeClass('active');
+                }
+            });
         }
     }
 
-    // 当文档加载完成时初始化
+    // 初始化
     $(document).ready(() => {
+        console.log('Initializing Header...');
         new Header();
     });
 
-})(jQuery); 
+})(jQuery);
