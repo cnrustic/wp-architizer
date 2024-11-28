@@ -1,73 +1,68 @@
-jQuery(document).ready(function($) {
-    // 初始化颜色选择器
-    $('.wp-architizer-options .color-field').wpColorPicker();
-    
-    // 图片上传
-    $('.image-upload-button').click(function(e) {
+// 管理界面核心功能
+class WPArchitizerAdmin {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.initColorPicker();
+        this.initImageUploader();
+        this.initFormValidation();
+    }
+
+    initColorPicker() {
+        jQuery('.wp-architizer-options .color-field').wpColorPicker();
+    }
+
+    initImageUploader() {
+        jQuery('.image-upload-button').on('click', this.handleImageUpload.bind(this));
+    }
+
+    handleImageUpload(e) {
         e.preventDefault();
+        const button = jQuery(e.currentTarget);
+        const field = button.siblings('input');
         
-        var button = $(this);
-        var field = button.siblings('input');
-        var customUploader = wp.media({
+        const uploader = wp.media({
             title: '选择图片',
-            library: {
-                type: 'image'
-            },
-            button: {
-                text: '使用此图片'
-            },
+            library: { type: 'image' },
+            button: { text: '使用此图片' },
             multiple: false
-        }).on('select', function() {
-            var attachment = customUploader.state().get('selection').first().toJSON();
-            field.val(attachment.url);
-            
-            // 更新预览
-            var preview = button.siblings('img');
-            if (preview.length === 0) {
-                preview = $('<img style="max-width:200px;">').insertBefore(field);
-            }
-            preview.attr('src', attachment.url);
-        }).open();
-    });
-    
-    // 表单验证
-    $('form').on('submit', function(e) {
-        var customCSS = $('#custom_css').val();
-        var customJS = $('#custom_js').val();
-        
-        // 验证CSS
-        if (customCSS && !isValidCSS(customCSS)) {
-            e.preventDefault();
-            alert('自定义CSS格式不正确');
-            return false;
+        });
+
+        uploader
+            .on('select', () => {
+                const attachment = uploader.state().get('selection').first().toJSON();
+                field.val(attachment.url);
+                this.updateImagePreview(button, attachment.url);
+            })
+            .open();
+    }
+
+    updateImagePreview(button, url) {
+        let preview = button.siblings('img');
+        if (!preview.length) {
+            preview = jQuery('<img>', {
+                style: 'max-width:200px;'
+            }).insertBefore(button.siblings('input'));
         }
+        preview.attr('src', url);
+    }
+
+    initFormValidation() {
+        jQuery('form').on('submit', this.validateForm);
+    },
+
+    validateForm(e) {
+        const customCSS = jQuery('#custom_css').val();
+        const customJS = jQuery('#custom_js').val();
         
-        // 验证JavaScript
-        if (customJS && !isValidJS(customJS)) {
+        if (!this.validateCSS(customCSS) || !this.validateJS(customJS)) {
             e.preventDefault();
-            alert('自定义JavaScript格式不正确');
-            return false;
-        }
-    });
-    
-    // CSS验证
-    function isValidCSS(css) {
-        try {
-            var sheet = new CSSStyleSheet();
-            sheet.insertRule(css, 0);
-            return true;
-        } catch (e) {
             return false;
         }
     }
-    
-    // JavaScript验证
-    function isValidJS(js) {
-        try {
-            new Function(js);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-}); 
+};
+
+// 初始化
+jQuery(document).ready(() => new WPArchitizerAdmin()); 

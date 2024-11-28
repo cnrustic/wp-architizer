@@ -1,132 +1,137 @@
 <?php
 /**
- * architizer Theme Customizer
+ * Architizer 主题自定义设置
  *
- * @package architizer
+ * @package Architizer
  */
 
-/**
- * Add postMessage support for site title and description for the Theme Customizer.
- *
- * @param WP_Customize_Manager $wp_customize Theme Customizer object.
- */
-function architizer_customize_register( $wp_customize ) {
-	$wp_customize->get_setting( 'blogname' )->transport         = 'postMessage';
-	$wp_customize->get_setting( 'blogdescription' )->transport  = 'postMessage';
-	$wp_customize->get_setting( 'header_textcolor' )->transport = 'postMessage';
-
-	if ( isset( $wp_customize->selective_refresh ) ) {
-		$wp_customize->selective_refresh->add_partial(
-			'blogname',
-			array(
-				'selector'        => '.site-title a',
-				'render_callback' => 'architizer_customize_partial_blogname',
-			)
-		);
-		$wp_customize->selective_refresh->add_partial(
-			'blogdescription',
-			array(
-				'selector'        => '.site-description',
-				'render_callback' => 'architizer_customize_partial_blogdescription',
-			)
-		);
-	}
-
-	// 社交媒体链接
-	$wp_customize->add_section('social_links', array(
-		'title' => '社交媒体链接',
-		'priority' => 30,
-	));
-
-	$social_platforms = array(
-		'weibo' => '微博',
-		'wechat' => '微信',
-		'qq' => 'QQ',
-		'linkedin' => '领英',
-		'twitter' => '推特',
-		'facebook' => '脸书'
-	);
-
-	foreach ($social_platforms as $platform => $label) {
-		$wp_customize->add_setting("social_links[$platform]", array(
-			'default' => '',
-			'sanitize_callback' => 'esc_url_raw'
-		));
-
-		$wp_customize->add_control("social_links[$platform]", array(
-			'label' => $label,
-			'section' => 'social_links',
-			'type' => 'url'
-		));
-	}
-
-	// 联系信息
-	$wp_customize->add_section('contact_info', array(
-		'title' => '联系信息',
-		'priority' => 31,
-	));
-
-	$contact_fields = array(
-		'contact_email' => '邮箱地址',
-		'contact_phone' => '联系电话',
-		'contact_address' => '公司地址'
-	);
-
-	foreach ($contact_fields as $field => $label) {
-		$wp_customize->add_setting($field, array(
-			'default' => '',
-			'sanitize_callback' => 'sanitize_text_field'
-		));
-
-		$wp_customize->add_control($field, array(
-			'label' => $label,
-			'section' => 'contact_info',
-			'type' => 'text'
-		));
-	}
-
-	// 首页设置
-	$wp_customize->add_section('homepage_settings', array(
-		'title' => '首页设置',
-		'priority' => 32,
-	));
-
-	// 首页幻灯片
-	$wp_customize->add_setting('hero_slides', array(
-		'default' => '',
-		'sanitize_callback' => 'absint'
-	));
-
-	$wp_customize->add_control('hero_slides', array(
-		'label' => '首页幻灯片',
-		'section' => 'homepage_settings',
-		'type' => 'media'
-	));
+class Architizer_Customizer {
+    private $wp_customize;
+    
+    public function __construct() {
+        add_action('customize_register', array($this, 'register'));
+        add_action('customize_preview_init', array($this, 'preview_js'));
+    }
+    
+    public function register($wp_customize) {
+        $this->wp_customize = $wp_customize;
+        
+        $this->setup_basic_settings();
+        $this->add_social_media_section();
+        $this->add_contact_section();
+        $this->add_homepage_section();
+        $this->add_projects_section();
+    }
+    
+    private function setup_basic_settings() {
+        // 基础设置的实时预览
+        $this->wp_customize->get_setting('blogname')->transport = 'postMessage';
+        $this->wp_customize->get_setting('blogdescription')->transport = 'postMessage';
+        
+        if (isset($this->wp_customize->selective_refresh)) {
+            $this->wp_customize->selective_refresh->add_partial('blogname', array(
+                'selector' => '.site-title a',
+                'render_callback' => array($this, 'render_blogname'),
+            ));
+            
+            $this->wp_customize->selective_refresh->add_partial('blogdescription', array(
+                'selector' => '.site-description',
+                'render_callback' => array($this, 'render_blogdescription'),
+            ));
+        }
+    }
+    
+    private function add_social_media_section() {
+        $this->wp_customize->add_section('social_links', array(
+            'title' => '社交媒体链接',
+            'priority' => 30,
+        ));
+        
+        $social_platforms = array(
+            'weibo' => '微博',
+            'wechat' => '微信',
+            'qq' => 'QQ',
+            'linkedin' => '领英',
+            'twitter' => '推特',
+            'facebook' => '脸书'
+        );
+        
+        foreach ($social_platforms as $platform => $label) {
+            $this->add_setting_and_control(
+                "social_links[$platform]",
+                array(
+                    'label' => $label,
+                    'section' => 'social_links',
+                    'type' => 'url',
+                    'sanitize_callback' => 'esc_url_raw'
+                )
+            );
+        }
+    }
+    
+    private function add_contact_section() {
+        $this->wp_customize->add_section('contact_info', array(
+            'title' => '联系信息',
+            'priority' => 31,
+        ));
+        
+        $contact_fields = array(
+            'contact_email' => array(
+                'label' => '邮箱地址',
+                'type' => 'email',
+                'sanitize_callback' => 'sanitize_email'
+            ),
+            'contact_phone' => array(
+                'label' => '联系电话',
+                'type' => 'tel',
+                'sanitize_callback' => 'sanitize_text_field'
+            ),
+            'contact_address' => array(
+                'label' => '公司地址',
+                'type' => 'textarea',
+                'sanitize_callback' => 'sanitize_textarea_field'
+            )
+        );
+        
+        foreach ($contact_fields as $key => $field) {
+            $this->add_setting_and_control($key, array_merge(
+                $field,
+                array('section' => 'contact_info')
+            ));
+        }
+    }
+    
+    private function add_setting_and_control($id, $args) {
+        $this->wp_customize->add_setting($id, array(
+            'default' => $args['default'] ?? '',
+            'sanitize_callback' => $args['sanitize_callback'] ?? 'sanitize_text_field'
+        ));
+        
+        $this->wp_customize->add_control($id, array(
+            'label' => $args['label'],
+            'section' => $args['section'],
+            'type' => $args['type']
+        ));
+    }
+    
+    public function render_blogname() {
+        bloginfo('name');
+    }
+    
+    public function render_blogdescription() {
+        bloginfo('description');
+    }
+    
+    public function preview_js() {
+        wp_enqueue_script(
+            'architizer-customizer',
+            get_template_directory_uri() . '/js/customizer.js',
+            array('customize-preview'),
+            THEME_VERSION,
+            true
+        );
+    }
 }
-add_action( 'customize_register', 'architizer_customize_register' );
 
-/**
- * Render the site title for the selective refresh partial.
- *
- * @return void
- */
-function architizer_customize_partial_blogname() {
-	bloginfo( 'name' );
-}
-
-/**
- * Render the site tagline for the selective refresh partial.
- *
- * @return void
- */
-function architizer_customize_partial_blogdescription() {
-	bloginfo( 'description' );
-}
-
-/**
- * Binds JS handlers to make Theme Customizer preview reload changes asynchronously.
- */
-function architizer_customize_preview_js() {
-	wp_enqueue_script( 'architizer-customizer', get_template_directory_uri() . '/js/customizer.js', array( 'customize-preview' ), _S_VERSION, true );
-}
-add_action( 'customize_preview_init', 'architizer_customize_preview_js' );
+// 初始化
+new Architizer_Customizer();

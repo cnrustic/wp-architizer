@@ -10,35 +10,6 @@ class WP_Architizer_Projects {
         add_shortcode('project_slider', array($this, 'render_project_slider'));
     }
 
-    public function register_project_post_type() {
-        $labels = array(
-            'name' => '项目',
-            'singular_name' => '项目',
-            'menu_name' => '项目管理',
-            'add_new' => '添加项目',
-            'add_new_item' => '添加新项目',
-            'edit_item' => '编辑项目',
-            'new_item' => '新项目',
-            'view_item' => '查看项目',
-            'search_items' => '搜索项目',
-            'not_found' => '未找到项目',
-            'not_found_in_trash' => '回收站中未找到项目'
-        );
-
-        $args = array(
-            'labels' => $labels,
-            'public' => true,
-            'has_archive' => true,
-            'menu_icon' => 'dashicons-portfolio',
-            'supports' => array('title', 'editor', 'thumbnail', 'excerpt'),
-            'rewrite' => array('slug' => 'projects'),
-            'show_in_rest' => true,
-            'menu_position' => 5,
-            'taxonomies' => array('project_category', 'project_tag')
-        );
-
-        register_post_type('project', $args);
-    }
 
     public function register_project_taxonomies() {
         // 注册项目分类

@@ -1,4 +1,28 @@
 <?php
+// 在文件开头添加主题基础设置
+function architizer_theme_setup() {
+    add_theme_support('automatic-feed-links');
+    add_theme_support('title-tag');
+    add_theme_support('post-thumbnails');
+    add_theme_support('html5', array(
+        'search-form',
+        'comment-form',
+        'comment-list',
+        'gallery',
+        'caption',
+        'style',
+        'script',
+    ));
+
+    // 注册菜单位置
+    register_nav_menus(array(
+        'header-menu' => '顶部菜单',
+        'mobile' => '移动端菜单',
+        'footer' => '页脚菜单',
+    ));
+}
+add_action('after_setup_theme', 'architizer_theme_setup');
+
 class WP_Architizer_Theme_Options {
     private $options;
 

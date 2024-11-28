@@ -104,3 +104,44 @@ class Architizer_Recent_Projects extends WP_Widget {
         return $instance;
     }
 } 
+
+class Architizer_Featured_Projects_Widget extends WP_Widget {
+    public function __construct() {
+        parent::__construct(
+            'architizer_featured_projects',
+            '特色项目展示',
+            array('description' => '显示特色项目列表')
+        );
+    }
+
+    public function widget($args, $instance) {
+        $title = !empty($instance['title']) ? $instance['title'] : '特色项目';
+        $number = !empty($instance['number']) ? absint($instance['number']) : 5;
+
+        $query = new WP_Query(array(
+            'post_type' => 'project',
+            'posts_per_page' => $number,
+            'meta_key' => 'featured_project',
+            'meta_value' => 'yes'
+        ));
+
+        if ($query->have_posts()) {
+            echo $args['before_widget'];
+            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+            
+            while ($query->have_posts()) {
+                $query->the_post();
+                get_template_part('template-parts/content', 'project-widget');
+            }
+            
+            echo $args['after_widget'];
+        }
+        wp_reset_postdata();
+    }
+}
+
+// 注册小工具
+function architizer_register_widgets() {
+    register_widget('Architizer_Featured_Projects_Widget');
+}
+add_action('widgets_init', 'architizer_register_widgets');

@@ -1,43 +1,37 @@
 <?php
 class WP_Architizer_Performance {
     private $cache_dir;
+    private $options;
     
     public function __construct() {
+        $this->options = get_option('wp_architizer_performance_options', array());
         $this->cache_dir = WP_CONTENT_DIR . '/cache/wp-architizer';
         
-        // 初始化缓存目录
+        // 确保缓存目录存在且可写
         if (!file_exists($this->cache_dir)) {
-            wp_mkdir_p($this->cache_dir);
+            if (!wp_mkdir_p($this->cache_dir)) {
+                error_log('无法创建缓存目录：' . $this->cache_dir);
+                return;
+            }
         }
         
-        // 基础优化
-        add_action('init', array($this, 'init_optimization'));
-        add_action('wp_enqueue_scripts', array($this, 'optimize_assets'), 999);
-        add_filter('script_loader_tag', array($this, 'add_async_defer'), 10, 3);
-        add_action('wp_head', array($this, 'remove_unnecessary_tags'), 1);
+        if (!is_writable($this->cache_dir)) {
+            error_log('缓存目录不可写：' . $this->cache_dir);
+            return;
+        }
         
-        // 图片优化
-        add_filter('wp_handle_upload', array($this, 'optimize_uploaded_image'));
-        add_filter('wp_get_attachment_image_attributes', array($this, 'add_lazy_loading'), 10, 3);
-        add_filter('the_content', array($this, 'add_content_lazy_loading'));
-        
-        // 数据库优化
-        add_action('admin_menu', array($this, 'add_admin_menu'));
-        add_action('admin_init', array($this, 'register_settings'));
-        add_action('wp_scheduled_auto_draft_delete', array($this, 'cleanup_database'));
-        
-        // 缓存系统
-        add_action('save_post', array($this, 'clear_page_cache'));
-        add_action('comment_post', array($this, 'clear_page_cache'));
-        add_action('wp_loaded', array($this, 'maybe_serve_cache'));
-        
-        // AJAX优化
-        add_action('wp_ajax_optimize_images', array($this, 'handle_bulk_image_optimization'));
-        add_action('wp_ajax_clear_all_cache', array($this, 'handle_clear_all_cache'));
-        
-        // 监控系统
-        add_action('template_redirect', array($this, 'start_page_profiling'));
-        add_action('shutdown', array($this, 'end_page_profiling'));
+        $this->init_hooks();
+    }
+    
+    private function init_hooks() {
+        // 使用 try-catch 包装关键操作
+        try {
+            add_action('init', array($this, 'init_optimization'));
+            add_action('wp_enqueue_scripts', array($this, 'optimize_assets'), 999);
+            add_filter('script_loader_tag', array($this, 'add_async_defer'), 10, 3);
+        } catch (Exception $e) {
+            error_log('性能优化初始化失败：' . $e->getMessage());
+        }
     }
 
     public function init_optimization() {
@@ -64,28 +58,18 @@ class WP_Architizer_Performance {
     public function optimize_assets() {
         global $wp_scripts, $wp_styles;
         
-        // 获取主题设置
-        $options = get_option('wp_architizer_performance_options');
-        
-        // 合并和压缩CSS
-        if (!empty($options['combine_css'])) {
-            $this->combine_css($wp_styles->queue);
-        }
-        
-        // 合并和压缩JS
-        if (!empty($options['combine_js'])) {
-            $this->combine_js($wp_scripts->queue);
-        }
-        
-        // 移除查询字符串
-        if (!empty($options['remove_query_strings'])) {
-            foreach ($wp_scripts->registered as $handle => $script) {
-                $wp_scripts->registered[$handle]->ver = null;
-            }
-            foreach ($wp_styles->registered as $handle => $style) {
-                $wp_styles->registered[$handle]->ver = null;
+        // 延迟非关键 JavaScript
+        foreach ($wp_scripts->registered as $handle => $script) {
+            if (!in_array($handle, $this->critical_scripts)) {
+                $wp_scripts->add_data($handle, 'defer', true);
             }
         }
+        
+        // 预加载关键资源
+        add_action('wp_head', function() {
+            echo '<link rel="preload" href="' . get_stylesheet_uri() . '" as="style">';
+            echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/js/main.js" as="script">';
+        }, 1);
     }
 
     private function combine_css($handles) {
@@ -212,7 +196,7 @@ class WP_Architizer_Performance {
     public function cleanup_database() {
         global $wpdb;
         
-        // 清理��订版本
+        // 清理订版本
         $wpdb->query("DELETE FROM $wpdb->posts WHERE post_type = 'revision'");
         
         // 清理自动草稿

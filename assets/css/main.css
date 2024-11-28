@@ -273,26 +273,32 @@ h2 {
 }
 
 .project-categories {
-    list-style: none;
-    padding: 0;
+    --spacing: 5px;
+    --text-color: #666;
+    --hover-color: #000;
 }
 
 .project-categories li {
-    margin-bottom: 5px;
+    margin-bottom: var(--spacing);
 }
 
 .project-categories a {
-    color: #666;
+    color: var(--text-color);
     text-decoration: none;
+    transition: color 0.3s ease;
 }
 
 .project-categories a:hover {
-    color: #000;
+    color: var(--hover-color);
+}
+
+.related-projects {
+    --title-spacing: 30px;
 }
 
 .related-projects h2 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: var(--title-spacing);
 }
 
 /* 响应式设计 */
@@ -333,10 +339,15 @@ h2 {
 }
 
 /* 产品展示区布局 */
+.product-showcase {
+    --grid-gap: 40px;
+    --padding-vertical: 60px;
+}
+
 .product-showcase .container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--grid-gap);
 }
 
 /* 产品图片画廊 */

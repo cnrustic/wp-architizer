@@ -9,6 +9,27 @@ if (!defined('THEME_VERSION')) {
     define('THEME_VERSION', $theme->get('Version'));
 }
 
+function architizer_handle_required_files() {
+    $required_files = array(
+        '/inc/post-types.php',
+        '/inc/widgets.php',
+        '/inc/theme-options.php',
+        '/inc/ajax-handlers.php',
+        '/inc/taxonomies.php'
+    );
+
+    foreach($required_files as $file) {
+        $file_path = get_template_directory() . $file;
+        if(file_exists($file_path)) {
+            require_once $file_path;
+        } else {
+            add_action('admin_notices', function() use ($file) {
+                echo '<div class="error"><p>主题文件缺失: ' . esc_html($file) . '</p></div>';
+            });
+        }
+    }
+}
+add_action('after_setup_theme', 'architizer_handle_required_files');
 /**
  * 主题基础设置
  */
@@ -138,7 +159,7 @@ function register_custom_taxonomies() {
     register_taxonomy('project_category', 'project', array(
         'labels' => array(
             'name'              => '项目分类',
-            'singular_name'     => '��目分类',
+            'singular_name'     => '目分类',
             'search_items'      => '搜索项目分类',
             'all_items'         => '所有项目分类',
             'parent_item'       => '父级项目分类',
@@ -299,3 +320,40 @@ function handle_banner_close() {
     }
 }
 add_action('wp_ajax_close_banner', 'handle_banner_close');
+
+// 延迟加载图片
+function architizer_lazy_loading_setup() {
+    add_filter('wp_get_attachment_image_attributes', function($attr) {
+        $attr['loading'] = 'lazy';
+        return $attr;
+    });
+}
+add_action('after_setup_theme', 'architizer_lazy_loading_setup');
+
+// 优化资源加载
+function architizer_optimize_assets() {
+    // 移除不必要的资源
+    remove_action('wp_head', 'print_emoji_detection_script', 7);
+    remove_action('wp_print_styles', 'print_emoji_styles');
+    
+    // 条件加载 CSS/JS
+    if (!is_singular('project')) {
+        wp_dequeue_style('project-gallery');
+        wp_dequeue_script('project-gallery');
+    }
+}
+add_action('wp_enqueue_scripts', 'architizer_optimize_assets', 100);
+// 主题基础设置
+require get_template_directory() . '/inc/theme-options.php';
+
+// 自定义文章类型
+require get_template_directory() . '/inc/post-types.php';
+
+// 自定义分类法
+require get_template_directory() . '/inc/taxonomies.php';
+
+// AJAX 处理
+require get_template_directory() . '/inc/ajax-handlers.php';
+
+// 自定义小工具
+require get_template_directory() . '/inc/widgets.php';
