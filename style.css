@@ -1,18 +1,11 @@
 /*
-Theme Name: WP Architizer
-Theme URI: https://github.com/cnrustic/wp-architizer
-Author: Zeyan Studio
-Author URI: https://zeyanstudio.com
-Description: A professional WordPress theme for architects and designers
+Theme Name: Architizer
+Theme URI: https://architizer.com/
+Author: Your Name
+Author URI: https://example.com/
+Description: Architizer WordPress Theme
 Version: 1.0.0
 License: GNU General Public License v2 or later
-License URI: LICENSE
-Text Domain: wp-architizer
-This theme, like WordPress, is licensed under the GPL.
-architizer is based on Underscores https://underscores.me/, (C) 2012-2020 Automattic, Inc.
-Underscores is distributed under the terms of the GNU GPL v2 or later.
-Normalizing styles have been helped along thanks to the fine work of
-Nicolas Gallagher and Jonathan Neal https://necolas.github.io/normalize.css/
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: architizer
 */
-
-/* 这个文件只保留主题信息，所有样式都放在 main.css 中 */
