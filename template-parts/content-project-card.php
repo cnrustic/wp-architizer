@@ -4,33 +4,54 @@
  */
 ?>
 
-<article class="project-card">
-    <div class="project-thumbnail">
-        <a href="<?php the_permalink(); ?>">
-            <?php if (has_post_thumbnail()) : ?>
-                <?php the_post_thumbnail('large'); ?>
-            <?php endif; ?>
-        </a>
-    </div>
-    <div class="project-info">
-        <h3 class="project-title">
-            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-        </h3>
-        <div class="project-meta">
-            <?php
-            $location = get_the_terms(get_the_ID(), 'project_location');
-            if ($location) {
-                echo '<span class="location">' . $location[0]->name . '</span>';
-            }
-            ?>
-            <span class="firm">
-                <?php
-                $firm_id = get_post_meta(get_the_ID(), 'project_firm', true);
-                if ($firm_id) {
-                    echo '<a href="' . get_permalink($firm_id) . '">' . get_the_title($firm_id) . '</a>';
-                }
-                ?>
-            </span>
-        </div>
-    </div>
-</article> 
+php:template-parts/content-project-card.php
+<article <?php post_class('project-card'); ?>>
+<div class="card-media">
+<?php if (has_post_thumbnail()): ?>
+<a href="<?php the_permalink(); ?>" class="card-image">
+<?php the_post_thumbnail('project-card'); ?>
+</a>
+<?php endif; ?>
+<div class="card-overlay">
+<div class="overlay-content">
+<?php
+$categories = get_the_terms(get_the_ID(), 'project_category');
+if ($categories): ?>
+<div class="card-categories">
+<?php foreach (array_slice($categories, 0, 2) as $category): ?>
+<a href="<?php echo get_term_link($category); ?>" class="category-tag">
+<?php echo $category->name; ?>
+</a>
+<?php endforeach; ?>
+</div>
+<?php endif; ?>
+<div class="card-actions">
+<button class="action-btn like-btn" data-project="<?php the_ID(); ?>">
+<i class="material-icons">favorite_border</i>
+</button>
+<button class="action-btn share-btn">
+<i class="material-icons">share</i>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="card-content">
+<h3 class="card-title">
+<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+</h3>
+<div class="card-meta">
+<?php if (get_field('architect')): ?>
+<a href="<?php echo get_field('architect_link'); ?>" class="architect-link">
+<?php echo get_field('architect'); ?>
+</a>
+<?php endif; ?>
+<?php if (get_field('project_location')): ?>
+<span class="location">
+<i class="material-icons">location_on</i>
+<?php echo get_field('project_location'); ?>
+</span>
+<?php endif; ?>
+</div>
+</div>
+</article>

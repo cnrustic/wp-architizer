@@ -1,0 +1,126 @@
+.single-product {
+    // 面包屑导航
+    .breadcrumb-wrapper {
+        background: #f8f8f8;
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    // 产品头部
+    .product-header {
+        margin-bottom: 3rem;
+        
+        .product-meta {
+            .product-brand {
+                color: #666;
+                font-size: 1.125rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .product-title {
+                font-size: 2.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .product-meta-details {
+                display: flex;
+                gap: 2rem;
+                
+                .meta-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    color: #666;
+                }
+            }
+        }
+    }
+    
+    // 产品展示区
+    .product-showcase {
+        padding: 3rem 0;
+        
+        .product-content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 3rem;
+            
+            @media (max-width: 992px) {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        // 产品图库
+        .product-gallery {
+            .gallery-main {
+                margin-bottom: 1rem;
+                border-radius: 12px;
+                overflow: hidden;
+                
+                .gallery-image-wrapper {
+                    position: relative;
+                    padding-top: 75%;
+                    
+                    img {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        object-fit: contain;
+                    }
+                }
+            }
+            
+            .gallery-thumbs {
+                .thumb-image {
+                    cursor: pointer;
+                    border-radius: 6px;
+                    overflow: hidden;
+                    opacity: 0.6;
+                    transition: opacity 0.2s;
+                    
+                    &.active,
+                    &:hover {
+                        opacity: 1;
+                    }
+                    
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                    }
+                }
+            }
+        }
+        
+        // 产品信息
+        .product-info {
+            .product-actions {
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 2rem;
+                
+                .action-btn {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    padding: 1rem;
+                    border: none;
+                    border-radius: 6px;
+                    background: #f8f8f8;
+                    color: #333;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    
+                    &:hover {
+                        background: #1ca3fc;
+                        color: #fff;
+                    }
+                }
+            }
+        }
+    }
+} 
